@@ -1,0 +1,12 @@
+# export everything (in development mode)
+
+S3method(print, RBIOM)
+S3method(summary, RBIOM)
+S3method(unlist, RBIOM)
+S3method(RBIOM, list)
+S3method(RBIOM, matrix)
+S3method(RBIOM, character)
+# more...
+
+exportPattern(".*")
+
