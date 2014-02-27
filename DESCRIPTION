@@ -1,16 +1,16 @@
 Package: RBIOM
 Type: Package
-Title: An S3 Class for BIOM Format
+Title: An S3 Class with Utilities, for the Biological Observation Matrix (BIOM) Format
 Version: 0.1.0
-Depends: R (>= 3.0), RJSONIO
-Imports: 
+Depends: R (>= 3.0)
+Imports: RJSONIO
 Suggests:
 URL: https://github.com/braithwaite/RBIOM/
 Date: 2014-02-01
 Author: Daniel T. Braithwaite
 Maintainer: Daniel T. Braithwaite <braithwaite@cels.anl.gov>
 Authors@R: c(person ("Daniel", "Braithwaite", role = c ("aut", "cre"), email = "braithwaite@uchicago.edu"))
-Description: An S3 Class for BIOM Format
+Description: An S3 Class with Utilities, for the Biological Observation Matrix (BIOM) Format
 License: file LICENSE
 LazyLoad: yes
 LazyData: yes
