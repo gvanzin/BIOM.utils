@@ -20,6 +20,16 @@
 	packageStartupMessage(pkgname, " (", packageVersion(pkgname), " build xxxxxxx)")
 }
 
+
+######################################################################################
+## a slight tweak of the default method
+######################################################################################
+str.biom <- function (x, ...)
+	str(unclass(x) [c("rows", "columns", "data", "shape", "matrix_type", "matrix_element_type",
+		"type", "format", "format_url", "date", "id", "generated_by")],
+	vec.len=1, nchar.max=35, strict.width="wrap", give.attr=FALSE, list.len=12, ...)
+
+
 ######################################################################################
 ## print it all
 ######################################################################################
