@@ -1,20 +1,19 @@
-Package: RBIOM
+Package: BIOM.utils
 Type: Package
-Title: An S3 Class with Utilities, for the Biological Observation Matrix (BIOM) Format
-Version: 0.1.0
-Depends: R (>= 3.0)
+Title: Utilities for the Biological Observation Matrix (BIOM) Format
+Version: 0.5.0
+Depends: R (>= 3.0), utils
 Imports: RJSONIO
-Suggests:
-URL: https://github.com/braithwaite/RBIOM/
+Suggests: MGRASTer, Matrix
+URL: https://github.com/braithwaite/BIOM.utils/
 Date: 2014-02-01
 Author: Daniel T. Braithwaite
 Maintainer: Daniel T. Braithwaite <braithwaite@cels.anl.gov>
 Authors@R: c(person ("Daniel", "Braithwaite", role = c ("aut", "cre"), email = "braithwaite@uchicago.edu"))
-Description: An S3 Class with Utilities, for the Biological Observation Matrix (BIOM) Format
+Description: Utilities for the Biological Observation Matrix (BIOM) Format
 License: file LICENSE
 LazyLoad: yes
 LazyData: yes
 LazyDataCompression: xz
 BuildVignettes: no
 Collate: main.R
-

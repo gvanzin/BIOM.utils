@@ -9,16 +9,19 @@ exportPattern(".*")
 ## our methods
 ######################################################################################
 
-S3method(print, RBIOM)
-S3method(summary, RBIOM)
-S3method(unlist, RBIOM)
-S3method(RBIOM, list)
-S3method(RBIOM, matrix)
-S3method(RBIOM, character)
-# more...
+S3method(as.character, biom)
+S3method(as.matrix, biom)
+S3method(dim, biom)
+S3method(dimnames, biom)
+# S3method(length, biom)
+S3method(print, biom)
+S3method(summary, biom)
+S3method(biom, list)
+S3method(biom, matrix)
+S3method(biom, character)
 
 ######################################################################################
 ## to save loading time, we don't do this:
 ######################################################################################
 
-# importFrom(RJSONIO, fromJSON, toJSON
+# importFrom(RJSONIO, fromJSON, toJSON)
