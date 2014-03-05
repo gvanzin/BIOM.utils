@@ -72,6 +72,19 @@ else
 ######################################################################################
 ## convert to matrix
 ##--->would be good to use stats::reshape instead of Matrix::sparseMatrix
+# as follows:
+#
+# resh <- function (x) {
+# m1 <- x
+# m2 <- t(simplify2array(m1))
+# m2[,1] <- m2[,1] + 1
+# m2[,2] <- m2[,2] + 1
+# df <- data.frame(m2)
+# names(df) <- c("row", "col", "value")
+# rs <- reshape(df, v.names="value", idvar="row", timevar="col", direction="wide")
+# invisible(as.matrix(rs))
+# }
+# resh(obj$data)
 ######################################################################################
 as.matrix.biom <- function(x, alt.names=FALSE, force.dense=FALSE, ...) {
 dd <- dim(x)
