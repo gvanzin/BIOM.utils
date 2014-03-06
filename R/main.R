@@ -20,6 +20,16 @@
 	packageStartupMessage(pkgname, " (", packageVersion(pkgname), " build xxxxxxx)")
 }
 
+
+######################################################################################
+## a slight tweak of the default method
+######################################################################################
+str.biom <- function (x, ...)
+	str(unclass(x) [c("rows", "columns", "data", "shape", "matrix_type", "matrix_element_type",
+		"type", "format", "format_url", "date", "id", "generated_by")],
+	vec.len=1, nchar.max=35, strict.width="wrap", give.attr=FALSE, list.len=12, ...)
+
+
 ######################################################################################
 ## print it all
 ######################################################################################
@@ -74,8 +84,13 @@ else
 
 ######################################################################################
 ## convert to matrix
-##--->would be good to use stats::reshape instead of Matrix::sparseMatrix
-## slightly different "strip" function here since we expect metadata to be a list
+##--->slightly different "strip" function here since we expect metadata to be a list
+##--->would be good to use stats::reshape instead of Matrix::sparseMatrix something like as follows:
+#
+# mm <- t(simplify2array(bb$data))
+# mm[,1:2] <- mm[,1:2] + 1
+# colnames(mm) <- c("row", "col", "value")
+# nn <- as.matrix(reshape(data.frame(mm), v.names="value", idvar="row", timevar="col", direction="wide"))
 ######################################################################################
 as.matrix.biom <- function(x, alt.names=FALSE, force.dense=FALSE, ...) {
 dd <- dim(x)
