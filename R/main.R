@@ -54,10 +54,13 @@ dim.biom <- function(x)
 ## good to have methods for those functions, too
 ## but would be asking for trouble (for now) since they are not already generic
 ## ...whereas dimnames() is
+## have to take a bit of trouble here since "id" may be character or list; we expect it to be length-one
 ######################################################################################
-dimnames.biom <- function(x)
-	list(sapply (x$rows, `[[`, i="id"),
-		sapply (x$columns, `[[`, i="id"))
+dimnames.biom <- function(x) {
+	strip <- function (r) as.character(r["id"])[1]
+	list(sapply (x$rows, strip),
+		sapply (x$columns, strip))
+}
 
 ######################################################################################
 ## number of actually provided data elements (handled according to type)
@@ -72,6 +75,7 @@ else
 ######################################################################################
 ## convert to matrix
 ##--->would be good to use stats::reshape instead of Matrix::sparseMatrix
+## slightly different "strip" function here since we expect metadata to be a list
 ######################################################################################
 as.matrix.biom <- function(x, alt.names=FALSE, force.dense=FALSE, ...) {
 dd <- dim(x)
@@ -83,11 +87,10 @@ if (x$matrix_type == "sparse") {
 } else
 	mm <- matrix (unlist (x$data), nrow=dd[1], ncol=dd[2], byrow=TRUE)
 alt.names <- rep_len(alt.names,2)
-grab.name <- function (aa) 
-	paste(as.character(unlist(aa$metadata)), collapse=",")
+strip <- function (r) paste(unlist(r["metadata"]), collapse=",")
 dimnames(mm) <- dimnames(x)
-if(alt.names[1]) dimnames(mm)[[1]] <- sapply (x$rows, grab.name)
-if(alt.names[2]) dimnames(mm)[[2]] <- sapply (x$columns, grab.name)
+if(alt.names[1]) dimnames(mm)[[1]] <- sapply (x$rows, strip)
+if(alt.names[2]) dimnames(mm)[[2]] <- sapply (x$columns, strip)
 mm
 }
 
@@ -109,9 +112,8 @@ biom <- function (x, ...) UseMethod("biom")
 ## construct from list
 ######################################################################################
 biom.list <- function (x, ...) { 
-y <- x
-class(y) <- c("biom", class(x))
-is.biom(y, fix=TRUE)
+class(x) <- c("biom", class(x))
+is.biom(x, fix=TRUE)
 }
 
 ######################################################################################
@@ -140,7 +142,7 @@ is.biom(y,fix=TRUE,quiet=TRUE)
 ##--->the use of fromJSON() here needs some careful looking-over
 ######################################################################################
 biom.character <- function (x, ...)
-	RJSONIO::fromJSON(x, asText=TRUE, simplify=TRUE)
+	biom(RJSONIO::fromJSON(x, asText=TRUE, simplify=TRUE))
 
 
 ######################################################################################
@@ -196,7 +198,7 @@ if(length(fields.missing)) {
 		stop("cannot fix")
 #-------fill in trivial basic info
 	if("id" %in% fields.missing) x$id <- "unknown id"
-	if("format" %in% fields.missing) x$format <- "unknown format"
+	if("format" %in% fields.missing) x$format <- "unknown BIOM format"
 	if("format_url" %in% fields.missing) x$format_url <- "unknown format_url"
 	if("generated_by" %in% fields.missing) x$generated_by <- 
 #-------DON'T LIKE THIS:

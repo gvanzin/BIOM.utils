@@ -36,5 +36,21 @@ Daniel T. Braithwaite}
 \seealso{
 \code{\link{biom}}, \code{\link{dim.biom}}}
 
-\examples{#}
+\examples{
+if(require(MGRASTer)) {
+	cc <- call.MGRAST('ma', 'or', 
+		id=c(4447943.3, 4447192.3, 4447102.3, 4447103.3), group='family')
+# a warning in the next step is normal
+	bb <- biom(cc)
+	mm <- as.matrix(bb)
+# it is a sparse matrix
+	class(mm)
+	head(mm)
+	dimnames(mm)
+# now dense, with better row names
+	mm <- as.matrix(bb,alt=c(TRUE,FALSE),force=TRUE)
+	class(mm)
+	dimnames(mm)
+}
+}
 

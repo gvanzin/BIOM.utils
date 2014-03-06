@@ -25,4 +25,13 @@ A (length-one) character vector of JSON text or an error as returned by \code{to
 \seealso{
 \code{\link{biom}}}
 
-\examples{#}
+\examples{
+if(require(MGRASTer)) {
+	cc <- call.MGRAST('ma', 'or', 
+		id=c(4447943.3, 4447192.3, 4447102.3, 4447103.3), group='family')
+# a warning in the next step is normal
+	bb <- biom(cc)
+	tt <- as.character(bb)
+	str(tt)
+}
+}
