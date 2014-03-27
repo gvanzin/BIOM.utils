@@ -16,4 +16,4 @@ LazyLoad: yes
 LazyData: yes
 LazyDataCompression: xz
 BuildVignettes: no
-Collate: main.R
+Collate: source.R

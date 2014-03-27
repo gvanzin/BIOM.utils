@@ -1,9 +1,31 @@
 ######################################################################################
-## export everything (in development mode)
-######################################################################################
+## These routines are made available to users:
+##
+## biom
+## biom.character
+## biom.list
+## biom.matrix
+##
+## as.character.biom
+## as.matrix.biom
+##
+## dim.biom
+## dimnames.biom
+## len
+##
+## str.biom
+## print.biom
+## summary.biom
+## print.biomsummary
+##
+## is.biom
+##
+## by.id, by.metadata, biom.examples, biom.test
+##
+## ...Export everything during devel
+################################################################################
 
 exportPattern(".*")
-
 
 ######################################################################################
 ## our methods
@@ -13,16 +35,16 @@ S3method(as.character, biom)
 S3method(as.matrix, biom)
 S3method(dim, biom)
 S3method(dimnames, biom)
-# S3method(length, biom)
 S3method(print, biom)
 S3method(str, biom)
 S3method(summary, biom)
 S3method(biom, list)
 S3method(biom, matrix)
 S3method(biom, character)
+S3method(print, biomsummary)
 
 ######################################################################################
 ## to save loading time, we don't do this:
 ######################################################################################
 
-# importFrom(RJSONIO, fromJSON, toJSON)
+## importFrom(RJSONIO, fromJSON, toJSON)
