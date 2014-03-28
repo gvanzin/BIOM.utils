@@ -48,23 +48,23 @@ str(jtxt, list.len=5)
 ## show simple constructions
 ################################################################################
 
-biom(smat, type="OTU"); biom(dmat, type="OTU")
+biom(dmat, type="OTU")
 
---> some quirky behavior here:
 biom(li1); biom(li2); biom(li3); biom(li4)
 
 biom(jtxt)
 
 ## confirm all methods work on them
 
-biom.test(biom(smat, type="OTU")); biom.test(biom(dmat, type="OTU"))
-biom.test(biom(li1)); biom.test(biom(li2)); biom.test(biom(li3)); biom.test(biom(li4))
-biom.test(biom(jtxt))
+test.object(biom(smat, type="OTU")); test.object(biom(dmat, type="OTU"))
+test.object(biom(li1)); test.object(biom(li2)); test.object(biom(li3)); test.object(biom(li4))
+test.object(biom(jtxt))
 
 ################################################################################
 ## show variations that WORK
 ################################################################################
 
+biom(list(data=dmat, type="OTU"))
 
 ################################################################################
 ## show variations that DON'T WORK
@@ -74,8 +74,11 @@ biom.test(biom(jtxt))
 try(biom(dmat))
 try(biom(dmat, "foo"))
 
-## matrix intended as sparse will be interpreted as dense
-try(biom(smat, type="OTU"))
+## "works" but.. matrix intended as sparse will be interpreted as dense
+biom(smat, type="OTU")
+
+## because smat has not dimnames
+try(biom(list(data=smat, type="OTU")))
 
 ## because no row/column info when dimnames are removed
 li <- li1
@@ -102,7 +105,7 @@ try(is.biom(li, fix=TRUE))
 ## "list" is missing a required component ("type","rows","columns","data") -- fails
 li <- li4
 li$rows <- NULL
-try(is.biom(li, fix=TRUE)))
+try(is.biom(li, fix=TRUE))
 
 ## "list" is missing a non-required component -- succeeds
 li <- li4

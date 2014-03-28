@@ -20,7 +20,7 @@
 ##
 ## is.biom
 ##
-## by.id, by.metadata, biom.examples, biom.test
+## byid, bymetadata, biom.examples, test.object
 ##
 ## ...Export everything during devel
 ################################################################################
