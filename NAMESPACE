@@ -1,50 +1,49 @@
-######################################################################################
-## These routines are made available to users:
-##
-## biom
-## biom.character
-## biom.list
-## biom.matrix
-##
-## as.character.biom
-## as.matrix.biom
-##
-## dim.biom
-## dimnames.biom
-## len
-##
-## str.biom
-## print.biom
-## summary.biom
-## print.biomsummary
-##
-## is.biom
-##
-## byid, bymetadata, biom.examples, test.object
-##
-## ...Export everything during devel
-################################################################################
+#-----------------------------------------------------------------------------
+#  these routines are available to users:
+#-----------------------------------------------------------------------------
 
-exportPattern(".*")
+export(
+	str.biom,				# basic class utilites
+	summary.biom,
+	print.biomsummary,
+	print.biom,
+	dim.biom,
+	dimnames.biom,
+	rows,
+	columns,
 
-######################################################################################
-## our methods
-######################################################################################
+	as.matrix.biom,			# conversion from
+	as.list.biom,
+	as.character.biom,
 
-S3method(as.character, biom)
-S3method(as.matrix, biom)
-S3method(dim, biom)
-S3method(dimnames, biom)
-S3method(print, biom)
-S3method(str, biom)
-S3method(summary, biom)
-S3method(biom, list)
-S3method(biom, matrix)
-S3method(biom, character)
-S3method(print, biomsummary)
+	biom,					# conversion to
+	biom.character,
+	biom.matrix,
+	biom.list,
+	
+	is.biom,				# object validation
 
-######################################################################################
-## to save loading time, we don't do this:
-######################################################################################
+	buildBiomExamples,		# package utilities
+	applyBiomMethods,
+	exampleBiomFile)
 
-## importFrom(RJSONIO, fromJSON, toJSON)
+#-----------------------------------------------------------------------------
+#  these S3 methods are defined:
+#-----------------------------------------------------------------------------
+
+S3method (as.character, biom)
+S3method (as.matrix, biom)
+S3method (dim, biom)
+S3method (dimnames, biom)
+S3method (print, biom)
+S3method (str, biom)
+S3method (summary, biom)
+S3method (biom, list)
+S3method (biom, matrix)
+S3method (biom, character)
+S3method (print, biomsummary)
+
+#-----------------------------------------------------------------------------
+#  to save loading time, we don't do this:
+#    importFrom (RJSONIO, fromJSON, toJSON)
+#-----------------------------------------------------------------------------

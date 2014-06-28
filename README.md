@@ -15,7 +15,6 @@ as.character.biom <- function (x, ...)
 
 dim.biom <- function(x)
 dimnames.biom <- function(x)
-len <- function(x)
 
 print.biom <- function(x, ...)
 summary.biom <- function(object, ...)

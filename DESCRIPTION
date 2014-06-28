@@ -3,8 +3,8 @@ Type: Package
 Title: Utilities for the Biological Observation Matrix (BIOM) Format
 Version: 0.5.0
 Depends: R (>= 3.0), utils
-Imports: RJSONIO
-Suggests: matR, MGRASTer, Matrix
+Imports: 
+Suggests: RJSONIO, MGRASTer
 URL: https://github.com/braithwaite/BIOM.utils/
 Date: 2014-02-01
 Author: Daniel T. Braithwaite

@@ -1,41 +1,30 @@
-################################################################################
-## These routines are made available to users:
-##
-## biom
-## biom.character
-## biom.list
-## biom.matrix
-##
-## as.character.biom
-## as.matrix.biom
-##
-## dim.biom
-## dimnames.biom
-## len
-##
-## str.biom
-## print.biom
-## summary.biom
-##
-## is.biom
-##
-################################################################################
+#-----------------------------------------------------------------------------
+#  exported routines and example data:
+#
+#  biom
+#  biom.character
+#  biom.list
+#  biom.matrix
+#  as.character.biom
+#  as.matrix.biom
+#  dim.biom
+#  dimnames.biom
+#  str.biom
+#  print.biom
+#  summary.biom
+#  is.biom
+#
+#  jtxt -- complete JSON text for a BIOM object
+#  smat -- three-column representation of a sparse matrix (no rownames/colnames)
+#  dmat -- small (dense) matrix with rownames/colnames
+#  li1 -- minimal list, with data given as dense matrix with dimnames
+#  li2 -- short list, data as above, but also with explicit row and column records
+#  li3 -- short list as above, but with data formatted as list of rows
+#  li4 -- complete list of BIOM components
+#-----------------------------------------------------------------------------
 
 library(BIOM.utils)
 
-################################################################################
-## prepackaged example inputs
-##
-## jtxt -- complete JSON text for BIOM object
-## smat -- sparse matrix of data, represented in three columns
-## dmat -- dense matrix, with row and column names
-## li1 -- minimal list, with data given as dense matrix with dimnames
-## li2 -- short list, data as above, but also with explicit row and column records
-## li3 -- short list as above, but with data formatted as list of rows
-## li4 -- complete list of BIOM components
-################################################################################
-
-load("examples.Rda")
 str(smat, list.len=5)
 str(dmat, list.len=5)
 str(li1, list.len=5)
@@ -43,56 +32,82 @@ str(li2, list.len=5)
 str(li3, list.len=5)
 str(li4, list.len=5)
 str(jtxt, list.len=5)
+exf <- biomExampleFile()
 
-################################################################################
-## show simple constructions
-################################################################################
+#-----------------------------------------------------------------------------
+# basic use
+#-----------------------------------------------------------------------------
 
-biom(dmat, type="OTU")
+*** biom (jtxt)								# JSON text object
+biom (jtxt, quiet=TRUE)
+biom (file=exf)				# JSON text file
+biom (file=exf, quiet=TRUE)
 
-biom(li1); biom(li2); biom(li3); biom(li4)
+biom (dmat)									# matrix with row/colnames
+biom (dmat, quiet=TRUE)
+biom (unname (dmat))						# matrix without row/colnames
+biom (unname (dmat), quiet=TRUE)
+biom (dmat, type="Taxon")					# biom type specified
+biom (dmat, type="Taxon", quiet=TRUE)
 
-biom(jtxt)
+biom (smat)									# this way, sparse data is not recognized
+biom (smat, quiet=TRUE)
 
-## confirm all methods work on them
+*** biom (list())							# empty biom object
+biom (list(), quiet=TRUE)
+biom (list (data=dmat))						# list of only matrix
+biom (list (data=dmat), quiet=TRUE)
+biom (list (data=unname(dmat)))				# list of only matrix (without row/colnames)
+biom (list (data=unname(dmat)), quiet=TRUE)
+biom (list (								# list of matrix and biom type
+	data=dmat, 
+	type="Taxon"))
+biom (list (								# list of matrix and biom type
+	data=dmat, 
+	type="Taxon"), quiet=TRUE)
+biom (list (								# list of whatever you like
+	data=dmat, 
+	type="Taxon", 
+	matrix_type="dense",
+	id="my first biom matrix",
+	generated_by="science"))
+biom (list (								# list of whatever you like
+	data=dmat, 
+	type="Taxon", 
+	matrix_type="dense",
+	id="my first biom matrix",
+	generated_by="science"), quiet=TRUE)
+*** biom (list (data=smat, matrix_type="sparse"))		# sparse data should be recognized this way
+biom (list (data=smat, matrix_type="sparse"), quiet=TRUE)
 
-test.object(biom(smat, type="OTU")); test.object(biom(dmat, type="OTU"))
-test.object(biom(li1)); test.object(biom(li2)); test.object(biom(li3)); test.object(biom(li4))
-test.object(biom(jtxt))
+biom (li1)							# list has "data" (dense named matrix),"type"
+biom (li1, quiet=TRUE)
+*** biom (li2)						# list has "data" (dense named matrix),"type","rows","columns"
+									# "id"s from "rows" and "columns" should supercede rownames/colnames of "data"
+biom (li2, quiet=TRUE)
+biom (li3)							# list has "data" (dense row list),"type","rows","columns"
+biom (li3, quiet=TRUE)
+biom (li4)							# list has "data" (sparse list), all other components
+biom (li4, quiet=TRUE)
 
-################################################################################
-## show variations that WORK
-################################################################################
-
-biom(list(data=dmat, type="OTU"))
-
-################################################################################
-## show variations that DON'T WORK
-################################################################################
-
-## because valid "type" is required
-try(biom(dmat))
-try(biom(dmat, "foo"))
-
-## "works" but.. matrix intended as sparse will be interpreted as dense
-biom(smat, type="OTU")
-
-## because smat has not dimnames
-try(biom(list(data=smat, type="OTU")))
-
-## because no row/column info when dimnames are removed
 li <- li1
 li$data <- unname(li$data)
-try(biom(li))
+biom(li)							# list has "data" (dense unnamed matrix),"type"
+bimo(li, quiet=TRUE)
 
-## because required component "rows" is missing
 li <- li3
 li$rows <- NULL
-try(biom(li))
+biom(li)							# list has "data" (dense row list),"type","rows","columns"
+bimo(li, quiet=TRUE)
 
-########################################################
-## show validation, including fixing
-########################################################
+
+
+mode (mm) <- 'integer'				# force matrix_element_type == 'int'
+
+
+#-----------------------------------------------------------------------------
+#  validation and fixing
+#-----------------------------------------------------------------------------
 
 ## class is not "list" -- fails
 try(is.biom(dmat, fix=TRUE))
@@ -133,16 +148,16 @@ li$shape <- c(10,5)
 is.biom(li, fix=TRUE)
 
 
-########################################################
-## show robustness of conversion
-########################################################
+#-----------------------------------------------------------------------------
+#  robustness of conversion
+#-----------------------------------------------------------------------------
 
-biom(as.character(biom(mm)))
-biom(as.character(biom(jsontext)))
-biom(as.character(biom(shortlist)))
-biom(as.character(biom(longlist)))
+biom(as.character(biom(dmat)))
+biom(as.character(biom(jtxt)))
+biom(as.character(biom(li1)))
+biom(as.character(biom(li4)))
 
-biom(as.matrix(biom(mm)))
-biom(as.matrix(biom(jsontext)))
-biom(as.matrix(biom(shortlist)))
-biom(as.matrix(biom(longlist)))
+biom(as.matrix(biom(dmat)))
+biom(as.matrix(biom(jtxt)))
+biom(as.matrix(biom(li1)))
+biom(as.matrix(biom(li4)))
