@@ -9,7 +9,7 @@ BIOM examples and related utilities
 }
 
 \description{
-Example objects for trying out methods of "biom" class, and related utilities.
+Example objects for trying out methods of \code{biom} class, and related utilities.
 }
 
 \usage{
@@ -35,25 +35,25 @@ li4
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class "biom".
+data in R, there is the formal class \code{biom}.
 
 Simple data objects of several kinds are provided to experiment with handling BIOM in R.
-See the examples below.  "buildBiomExamples" constructs these objects and saves them
+See the examples below.  \code{buildBiomExamples()} constructs these objects and saves them
 in designated files.  (It is a utility used to build the package.)
 
-"exampleBiomFile()" returns the full path, in the current installation, of a file of 
+\code{exampleBiomFile()} returns the full path, in the current installation, of a file of 
 (correctly structured JSON) BIOM data.
 
-"applyBiomMethods" is a testing utility that simply applies all BIOM methods
+\code{applyBiomMethods()} is a testing utility that simply applies all BIOM methods
 to a given object.
 }
 
 \value{
-Only "exampleBiomFile" has a meaningful return value (as described).
+Only \code{exampleBiomFile()} has a meaningful return value (as described).
 }
 
 \seealso{
-"\link{biom}"
+\code{\link{biom}}
 }
 
 \author{

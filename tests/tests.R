@@ -25,14 +25,14 @@
 
 library(BIOM.utils)
 
+str(jtxt, list.len=5)
 str(smat, list.len=5)
 str(dmat, list.len=5)
 str(li1, list.len=5)
 str(li2, list.len=5)
 str(li3, list.len=5)
 str(li4, list.len=5)
-str(jtxt, list.len=5)
-exf <- biomExampleFile()
+exf <- exampleBiomFile()
 
 #-----------------------------------------------------------------------------
 # basic use
@@ -40,7 +40,7 @@ exf <- biomExampleFile()
 
 *** biom (jtxt)								# JSON text object
 biom (jtxt, quiet=TRUE)
-biom (file=exf)				# JSON text file
+biom (file=exf)								# JSON text file
 biom (file=exf, quiet=TRUE)
 
 biom (dmat)									# matrix with row/colnames
@@ -53,11 +53,14 @@ biom (dmat, type="Taxon", quiet=TRUE)
 biom (smat)									# this way, sparse data is not recognized
 biom (smat, quiet=TRUE)
 
+
+# nrow(x) where nrow(x$data) ... except if "list" ...?
+
 *** biom (list())							# empty biom object
 biom (list(), quiet=TRUE)
-biom (list (data=dmat))						# list of only matrix
-biom (list (data=dmat), quiet=TRUE)
-biom (list (data=unname(dmat)))				# list of only matrix (without row/colnames)
+*** biom (list (data=dmat))						# list of only matrix
+*** biom (list (data=dmat), quiet=TRUE)
+*** biom (list (data=unname(dmat)))				# list of only matrix (without row/colnames)
 biom (list (data=unname(dmat)), quiet=TRUE)
 biom (list (								# list of matrix and biom type
 	data=dmat, 

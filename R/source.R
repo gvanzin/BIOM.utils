@@ -204,8 +204,8 @@ biom.matrix <- function (x, type = biom_table_types, ..., quiet = FALSE) {
 	y$type <- match.arg (type)
 	y$data <- x
 	y$shape <- dim (x)
-	y$rows <- replicate (nrow(x), character(0))
-	y$columns <- replicate (ncol(x), character(0))
+	y$rows <- replicate (nrow(x$data), character(0))
+	y$columns <- replicate (ncol(x$data), character(0))
 	y$matrix_type <- "dense"
 	y$matrix_element_type <-
 		if (is.integer (x)) {
@@ -319,6 +319,8 @@ is.biom <- function (x, fix=FALSE, check.all=fix, quiet=!check.all) {
 		if ("matrix_element_type" %in% missing)		x$matrix_element_type <- "unicode"
 		if ("matrix_type" %in% missing)		x$matrix_type <- "dense"
 		if ("type" %in% missing)			x$type <- biom_table_types [1]
+
+# no - need x$data here
 		if ("rows" %in% missing)			x$rows <- replicate (nrow(x), character(0))
 		if ("columns" %in% missing)			x$columns <- replicate (ncol(x), character(0))
 		}		

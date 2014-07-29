@@ -9,7 +9,7 @@ Convert BIOM data from formal to basic type (export)
 }
 
 \description{
-Convert an object of class "biom" into a basic type:  "matrix", "list", or "character".
+Convert an object of class \code{biom} into a basic type:  \code{matrix}, \code{list}, or \code{character}.
 }
 
 \usage{
@@ -19,7 +19,7 @@ Convert an object of class "biom" into a basic type:  "matrix", "list", or "char
 }
 
 \arguments{
-  \item{x}{an object ("biom")}
+  \item{x}{an object (\code{biom})}
   \item{\dots}{unused}
 }
 
@@ -27,19 +27,19 @@ Convert an object of class "biom" into a basic type:  "matrix", "list", or "char
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class "biom".
+data in R, there is the formal class \code{biom}.
 
-These functions each transform an object that is already of class "biom", into a basic R type.
+These functions each transform an object that is already of class \code{biom}, into a basic R type.
 
-"as.matrix" returns the BIOM data table as a "matrix", with "dimnames" equal to the
-BIOM row and column "id"s.  "as.character" returns BIOM properly speaking --- that is, 
-it returns (a length-one "character" vector of) text that encodes data and annotations in JSON
+\code{as.matrix()} returns the BIOM data table as a \code{matrix}, with \code{dimnames} equal to the
+BIOM row and column \code{id}s.  \code{as.character()} returns BIOM properly speaking --- that is, 
+it returns (a length-one \code{character} vector of) text that encodes data and annotations in JSON
 following BIOM.
 
-"as.list" returns a "list", closely corresponding element-by-element to BIOM.  
-The differences are:  "data" is a "matrix", not a "list"; its
-"dimnames" hold the row and column "id"s;  and consequently, "rows" and "columns" do not hold
-"id"s, but only "metadata".
+\code{as.list()} returns a \code{list}, closely corresponding element-by-element to BIOM.  
+The differences are:  \code{data} is a \code{matrix}, not a \code{list}; its
+\code{dimnames} hold the row and column \code{id}s;  and consequently, \code{rows} and \code{columns} do not hold
+\code{id}s, but only \code{metadata}.
 }
 
 \value{
@@ -47,10 +47,10 @@ As described.
 }
 
 \seealso{
-"\link{biom}",
-"\link{as.matrix}",
-"\link{as.list}",
-"\link{as.character}"
+\code{\link{biom}},
+\code{\link{as.matrix}},
+\code{\link{as.list}},
+\code{\link{as.character}}
 }
 
 \author{

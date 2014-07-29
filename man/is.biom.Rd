@@ -6,7 +6,7 @@ Check and repair representation of BIOM data
 }
 
 \description{
-Check whether an object formally conforms to the "biom" class.
+Check whether an object formally conforms to the \code{biom} class.
 Optionally, attempt to repair it.
 }
 
@@ -14,33 +14,33 @@ Optionally, attempt to repair it.
 is.biom(x, fix=FALSE, check.all=fix, quiet=!check.all)}
 
 \arguments{
-  \item{x}{an object ("biom")}
-  \item{fix}{attempt repair? ("logical")}
-  \item{check.all}{conduct thorough check? ("logical")}
-  \item{quiet}{print messages? ("logical")}
+  \item{x}{an object (\code{biom})}
+  \item{fix}{attempt repair? (\code{logical})}
+  \item{check.all}{conduct thorough check? (\code{logical})}
+  \item{quiet}{print messages? (\code{logical})}
 }
 
 \details{
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class "biom".
+data in R, there is the formal class \code{biom}.
 
-This functions checks whether an object in R is of class "biom".  
+This functions checks whether an object in R is of class \code{biom}.  
 
-A few shortcuts are taken when "check.all" is "FALSE", but otherwise the object is 
-thoroughly validated.   A good result can not be guaranteed by setting "fix" to "TRUE"
+A few shortcuts are taken when \code{check.all=FALSE}, but otherwise the object is 
+thoroughly validated.   A good result can not be guaranteed by setting \code{fix=TRUE},
 and data may be lost, but small deviations from BIOM format can be repaired.
 }
 
 \value{
-An error is signaled if "fix" is "TRUE" and the object can't be repaired.
-Otherwise, if "fix" is "TRUE", a "biom" object.
-Otherwise, "TRUE" or "FALSE".
+An error is signaled if \code{fix=TRUE} and the object can't be repaired.
+Otherwise, if \code{fix=TRUE}, a \code{biom} object.
+Otherwise, \code{TRUE} or \code{FALSE}.
 }
 
 \seealso{
-"\link{biom}"
+\code{\link{biom}}
 }
 
 \author{

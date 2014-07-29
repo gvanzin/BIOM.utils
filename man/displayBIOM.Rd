@@ -10,7 +10,7 @@ Display BIOM data in full or part
 }
 
 \description{
-Nicely print or summarize an object of class "biom".  A summary omits printing the data table.
+Nicely print or summarize an object of class \code{biom}.  A summary omits printing the data table.
 }
 
 \usage{
@@ -20,23 +20,23 @@ Nicely print or summarize an object of class "biom".  A summary omits printing t
 }
 
 \arguments{
-  \item{x}{an object ("biom')}
-  \item{object}{an object ("biom")}
-  \item{...}{further arguments to default method ("str" only)}
+  \item{x}{an object (\code{biom})}
+  \item{object}{an object (\code{biom})}
+  \item{...}{further arguments to default method (\code{str()} only)}
 }
 
 \details{
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class "biom".
+data in R, there is the formal class \code{biom}.
 
-These functions apply to an R object that is already of class "biom".
+These functions apply to an R object that is already of class \code{biom}.
 
-"print.biom" and "summary.biom" show the contents of the object, 
+\code{print.biom()} and \code{summary.biom()} show the contents of the object, 
 with the difference that the latter omits printing the BIOM data table.  
-"str.biom" shows the formal structure of the object, simply calling the default
-"str" method with pleasing options applied.
+\code{str.biom()} shows the formal structure of the object, simply calling the default
+\code{str()} method with pleasing options applied.
 }
 
 \value{
@@ -44,9 +44,9 @@ Nothing useful.
 }
 
 \seealso{
-"\link{biom}",
-"\link{str}",
-"\link{summary}"
+\code{\link{biom}},
+\code{\link{str}},
+\code{\link{summary}}
 }
 
 \author{
