@@ -3,6 +3,13 @@
 \alias{buildBiomExamples}
 \alias{applyBiomMethods}
 \alias{exampleBiomFile}
+\alias{jtxt}
+\alias{smat}
+\alias{dmat}
+\alias{li1}
+\alias{li2}
+\alias{li3}
+\alias{li4}
 
 \title{
 BIOM examples and related utilities
@@ -35,7 +42,7 @@ li4
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class \code{biom}.
+data in R, there is the class \code{biom}.
 
 Simple data objects of several kinds are provided to experiment with handling BIOM in R.
 See the examples below.  \code{buildBiomExamples()} constructs these objects and saves them

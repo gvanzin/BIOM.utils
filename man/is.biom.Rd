@@ -2,12 +2,12 @@
 \alias{is.biom}
 
 \title{
-Check and repair representation of BIOM data
+Check and conform representation of BIOM data
 }
 
 \description{
-Check whether an object formally conforms to the \code{biom} class.
-Optionally, attempt to repair it.
+Check formally whether an object conforms to the \code{biom} class.
+Optionally, attempt to fix nonconformities.
 }
 
 \usage{
@@ -24,18 +24,19 @@ is.biom(x, fix=FALSE, check.all=fix, quiet=!check.all)}
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class \code{biom}.
+data in R, there is the class \code{biom}.
 
 This functions checks whether an object in R is of class \code{biom}.  
 
 A few shortcuts are taken when \code{check.all=FALSE}, but otherwise the object is 
 thoroughly validated.   A good result can not be guaranteed by setting \code{fix=TRUE},
-and data may be lost, but small deviations from BIOM format can be repaired.
+and data may be lost, but small deviations from what class "biom" requires can be
+repaired.
 }
 
 \value{
-An error is signaled if \code{fix=TRUE} and the object can't be repaired.
-Otherwise, if \code{fix=TRUE}, a \code{biom} object.
+An error is signaled if \code{fix=TRUE} and the object can't be conformed.
+If \code{fix=TRUE}, otherwise, then a \code{biom} object.
 Otherwise, \code{TRUE} or \code{FALSE}.
 }
 

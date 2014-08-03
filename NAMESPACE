@@ -10,6 +10,7 @@ export(
 	dim.biom,
 	dimnames.biom,
 	rows,
+	columns,
 	
 	as.matrix.biom,			# conversion from
 	as.list.biom,

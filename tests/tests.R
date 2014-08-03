@@ -1,3 +1,21 @@
+DONE:  matrix, character, file
+TO DO:  
+* fixing  (maybe)
+
+#  use RJSONIO in more sophisticated way .... or rather, replace with JSONlite
+
+#  review is.biom() comprehensively yet again...
+#  can use biom.matrix() within is.biom and/or biom.list() provided recursion is avoided
+#  immediately apply simplify2array within is.biom().  require efficiency; neither do, nor code, things twice
+
+#  remove rows() and columns() entirely?  yes I think so
+
+#  replace with metadata() returning list of 2?  make generic so matR can have metadata.character
+#  or rather, this seems ... silly
+
+#  revise dumb / inaccurate warning messages
+				
+
 #-----------------------------------------------------------------------------
 #  exported routines and example data:
 #
@@ -15,12 +33,13 @@
 #  is.biom
 #
 #  jtxt -- complete JSON text for a BIOM object
-#  smat -- three-column representation of a sparse matrix (no rownames/colnames)
-#  dmat -- small (dense) matrix with rownames/colnames
-#  li1 -- minimal list, with data given as dense matrix with dimnames
-#  li2 -- short list, data as above, but also with explicit row and column records
-#  li3 -- short list as above, but with data formatted as list of rows
-#  li4 -- complete list of BIOM components
+#  smat -- sparse data as matrix (no dimnames)
+#  dmat -- dense matrix (dimnames)
+#  li1 -- list:  dense matrix (with dimnames), type
+#  li2 -- list:  dense matrix (with dimnames), type, rows, columns
+#  li3 -- list:  dense rowlist, type, rows, columns
+#  li4 -- list:  sparse data as list, and all other components
+#  exfi -- list of files of:  jtxt; dmat saved as .rda; dmat written as tsv
 #-----------------------------------------------------------------------------
 
 library(BIOM.utils)
@@ -32,135 +51,282 @@ str(li1, list.len=5)
 str(li2, list.len=5)
 str(li3, list.len=5)
 str(li4, list.len=5)
-exf <- exampleBiomFile()
+str(exfi)
 
 #-----------------------------------------------------------------------------
-# basic use
+#  constructing from nothing
 #-----------------------------------------------------------------------------
 
-*** biom (jtxt)								# JSON text object
-biom (jtxt, quiet=TRUE)
-biom (file=exf)								# JSON text file
-biom (file=exf, quiet=TRUE)
+biom()
 
-biom (dmat)									# matrix with row/colnames
+#-----------------------------------------------------------------------------
+#  constructing from matrix
+#-----------------------------------------------------------------------------
+
+#  from named matrix
+biom (dmat)
 biom (dmat, quiet=TRUE)
-biom (unname (dmat))						# matrix without row/colnames
+
+#  from nameless matrix
+biom (unname (dmat))
 biom (unname (dmat), quiet=TRUE)
-biom (dmat, type="Taxon")					# biom type specified
+
+#  from named matrix; type specified
+biom (dmat, type="Taxon")
 biom (dmat, type="Taxon", quiet=TRUE)
 
-biom (smat)									# this way, sparse data is not recognized
-biom (smat, quiet=TRUE)
+#  from nameless matrix; sparse representation not recognized
+biom (smat, type="Taxon")
+biom (smat, type="Taxon", quiet=TRUE)
+
+#  from nameless matrix; sparse representation specified
+biom (smat, type="Taxon", matrix_type="sparse")
+biom (smat, type="Taxon", matrix_type="sparse", quiet=TRUE)
+
+#  from named matrix; ensure matrix_element_type is "int"
+mm <- dmat
+mode(mm) <- "integer"
+biom(mm, type="Taxon", matrix_type="dense")
+
+#  from named matrix; ensure matrix_element_type is "float"
+mm <- dmat
+mode(mm) <- "double"
+biom(mm, type="Taxon", matrix_type="dense")
+
+#  from named matrix; ensure matrix_element_type is "Unicode"
+mm <- dmat
+mode(mm) <- "character"
+biom(mm, type="Taxon", matrix_type="dense")
+
+#  from nameless matrix; sparse specified; ensure matrix_element_type is "int"
+mm <- smat
+mode(mm) <- "integer"
+biom(mm, type="Taxon", matrix_type="sparse")
+
+#  from nameless matrix; sparse specified; ensure matrix_element_type is "float"
+mm <- smat
+mode(mm) <- "double"
+biom(mm, type="Taxon", matrix_type="sparse")
+
+#  from named matrix; ensure matrix_element_type is "Unicode"
+mm <- smat
+mode(mm) <- "character"
+biom(mm, type="Taxon", matrix_type="sparse")
 
 
-# nrow(x) where nrow(x$data) ... except if "list" ...?
+#-----------------------------------------------------------------------------
+#  constructing from character (JSON text)
+#-----------------------------------------------------------------------------
 
-*** biom (list())							# empty biom object
+biom (jtxt)
+biom (jtxt, quiet=TRUE)
+
+#-----------------------------------------------------------------------------
+#  constructing from name of file  (confirm: reliably calls character method?)
+#-----------------------------------------------------------------------------
+
+#  from an .rda file, read in a single object of any kind, and apply biom()
+biom (file=exfi$rda)
+
+#  from a non-rda file, the contents of which isValidJSON() approves
+biom (file=exfi$json)
+
+#  from a non-rda file _supposed_ to be JSON
+biom (file=exfi$json, force.JSON=TRUE)
+
+#  from a file, not isValidJSON() nor .rda, but rather a text data table
+biom (file=exfi$text)
+
+
+#-----------------------------------------------------------------------------
+#  constructing from list
+#-----------------------------------------------------------------------------
+
+#  an empty object
+biom (list())
 biom (list(), quiet=TRUE)
-*** biom (list (data=dmat))						# list of only matrix
-*** biom (list (data=dmat), quiet=TRUE)
-*** biom (list (data=unname(dmat)))				# list of only matrix (without row/colnames)
-biom (list (data=unname(dmat)), quiet=TRUE)
-biom (list (								# list of matrix and biom type
+
+#  from list of:  named matrix (dense)
+biom (list(
+	data=dmat))
+biom (quiet=TRUE, list(
+	data=dmat))
+
+#  from list of:  nameless matrix (dense)
+biom (list(
+	data=unname(dmat)))
+biom (quiet=TRUE, list(
+	data=unname(dmat)))
+
+# from example list:  named matrix (dense), biom type
+biom (li1)
+biom (li1, quiet=TRUE)
+
+#  from list of:  named matrix (dense), biom type
+biom (list(
 	data=dmat, 
 	type="Taxon"))
-biom (list (								# list of matrix and biom type
+biom (quiet=TRUE, list(
 	data=dmat, 
-	type="Taxon"), quiet=TRUE)
-biom (list (								# list of whatever you like
+	type="Taxon"))
+
+#  from example list:  unnamed matrix (dense), biom type
+li <- li1
+li$data <- unname(li$data)
+biom(li)
+biom(li, quiet=TRUE)
+
+#  from list of:  named matrix (dense), annotations but no metadata
+biom (list(
 	data=dmat, 
 	type="Taxon", 
 	matrix_type="dense",
 	id="my first biom matrix",
 	generated_by="science"))
-biom (list (								# list of whatever you like
+biom (quiet=TRUE, list(
 	data=dmat, 
 	type="Taxon", 
 	matrix_type="dense",
 	id="my first biom matrix",
-	generated_by="science"), quiet=TRUE)
-*** biom (list (data=smat, matrix_type="sparse"))		# sparse data should be recognized this way
-biom (list (data=smat, matrix_type="sparse"), quiet=TRUE)
+	generated_by="science"))
 
-biom (li1)							# list has "data" (dense named matrix),"type"
-biom (li1, quiet=TRUE)
-*** biom (li2)						# list has "data" (dense named matrix),"type","rows","columns"
-									# "id"s from "rows" and "columns" should supercede rownames/colnames of "data"
+#  from list of:  unnamed matrix, sparse indicated
+biom (list(
+	data=smat,
+	matrix_type="sparse"))
+biom (quiet=TRUE, list(
+	data=smat,
+	matrix_type="sparse"))
+
+#  from list of:  named matrix (dense), biom type, metadata (supercedes dimnames)
+biom (li2)
 biom (li2, quiet=TRUE)
-biom (li3)							# list has "data" (dense row list),"type","rows","columns"
+
+#  from list of:  rowlist (dense)
+biom (li3 ["data"])
+biom (li3 ["data"], quiet=TRUE)
+
+#  from list of:  rowlist (dense), biom type, metadata (supercedes any names from data)
+biom (li3)
 biom (li3, quiet=TRUE)
-biom (li4)							# list has "data" (sparse list), all other components
-biom (li4, quiet=TRUE)
 
-li <- li1
-li$data <- unname(li$data)
-biom(li)							# list has "data" (dense unnamed matrix),"type"
-bimo(li, quiet=TRUE)
-
+#  from list of:  rowlist (dense), biom type, partial metadata
 li <- li3
 li$rows <- NULL
-biom(li)							# list has "data" (dense row list),"type","rows","columns"
-bimo(li, quiet=TRUE)
+biom(li)									# some issue
+biom(li, quiet=TRUE)
 
+#  from list of:  entrylist (sparse), with everything
+biom (li4)
+biom (li4, quiet=TRUE)
 
+#  from list of:  matrix (sparse), with everything
+li <- li4
+li$data <- as.matrix (biom (li))
+biom (li4)
 
-mode (mm) <- 'integer'				# force matrix_element_type == 'int'
+#  from list of:  matrix (dense), with everything (metadata supercedes dimnames)
+li <- li4
+li$data <- as.matrix (biom (li), force.dense=TRUE)
+dimnames (li$data) <- list (1:nrow(li$data), 1:ncol(li$data))
+li$matrix_type <- "dense"
+biom (li)
+
+#  same as above, but omit to reset matrix_type  (so, an error)
+li <- li4
+li$data <- as.matrix (biom (li), force.dense=TRUE)
+try (biom (li))
+
+#  from list of:  rowlist (dense), with everything
+li <- li4
+li$data <- as.matrix (biom (li), force.dense=TRUE)
+li$data <- lapply (apply (dmat, 1, list), unlist, rec=F)
+li$matrix_type <- "dense"
+biom (li)
 
 
 #-----------------------------------------------------------------------------
 #  validation and fixing
 #-----------------------------------------------------------------------------
 
-## class is not "list" -- fails
+#  fail:  not "list"
 try(is.biom(dmat, fix=TRUE))
 
-## "list" is missing names -- fails
+#  fail:  missing names
 li <- li4
 names(li) <- NULL
 try(is.biom(li, fix=TRUE))
 
-## "list" is missing a required component ("type","rows","columns","data") -- fails
+#  fail:  missing "data"
 li <- li4
 li$rows <- NULL
 try(is.biom(li, fix=TRUE))
 
-## "list" is missing a non-required component -- succeeds
+#  succeed:  missing non-required component added
 li <- li4
 li$generated_by <- NULL
 is.biom(li, fix=TRUE)
 
-####---> problem.  with character(0) ??
-## missing "matrix_type" can be inferred -- succeeds
+#  succeed:  missing "matrix_type"
 li <- li4
 li$matrix_type <- NULL
-is.biom(li, fix=TRUE)
+is.biom(li, fix=TRUE)						# some issue
 
-## class is "list" not "biom" -- succeeds
+#  succeed:  missing "biom" class added
 is.biom(li4, fix=TRUE)
 is.biom(is.biom(li4, fix=TRUE))
 
-## "list" has extraneous field -- succeeds
+#  succeed:  extraneous field(s) dropped
 li <- li4
 li$foo <- "baz"
 is.biom(li, fix=TRUE)
 
-## incorrect "shape" can be fixed -- succeeds
+#  succeed:  wrong "shape" fixed
 li <- li4
 li$shape <- c(10,5)
-is.biom(li, fix=TRUE)
+is.biom(li, fix=TRUE)						# some issue
 
 
 #-----------------------------------------------------------------------------
 #  robustness of conversion
+#
+#  1 - return to original type via biom
+#  2 - convert to another type via biom
+#  3 - convert to biom via another type via biom
 #-----------------------------------------------------------------------------
 
-biom(as.character(biom(dmat)))
-biom(as.character(biom(jtxt)))
-biom(as.character(biom(li1)))
-biom(as.character(biom(li4)))
+tt <- tempfile()
+as.character (biom (jtxt), file=tt)
+as.character (biom (jtxt))
+as.matrix (biom (jtxt))
+as.matrix (biom (jtxt), force.dense=TRUE)
+as.list (biom (jtxt))
+biom (as.matrix (biom (jtxt)))
+biom (as.matrix (biom (jtxt), force.dense=TRUE))
+biom (as.list (biom (jtxt)))
+unlink (tt)
 
-biom(as.matrix(biom(dmat)))
-biom(as.matrix(biom(jtxt)))
-biom(as.matrix(biom(li1)))
-biom(as.matrix(biom(li4)))
+as.matrix (biom (smat, matrix="sparse"))
+as.matrix (biom (smat, matrix="sparse"), force.dense=TRUE)
+as.character (biom (smat, matrix="sparse"))
+as.list (biom (smat, matrix="sparse"))
+biom (as.character (biom (smat, matrix="sparse")))
+
+as.matrix (biom (dmat))
+as.character (biom (dmat))
+as.list (biom (dmat))
+biom (as.character (biom (dmat)))
+biom (as.list (biom (dmat)))
+
+as.list (biom (li1)))
+as.matrix (biom (li1))
+as.character (biom (li))
+biom (as.matrix (biom (li1)))
+biom (as.character (biom (li)))
+
+as.list (biom (li4)))
+as.matrix (biom (li4))
+as.matrix (biom (li4), force.dense=TRUE)
+as.character (biom (l4))
+biom (as.matrix (biom (li4)), force.dense=TRUE)
+biom (as.character (biom (l4)))

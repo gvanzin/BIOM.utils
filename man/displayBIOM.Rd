@@ -29,7 +29,7 @@ Nicely print or summarize an object of class \code{biom}.  A summary omits print
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class \code{biom}.
+data in R, there is the class \code{biom}.
 
 These functions apply to an R object that is already of class \code{biom}.
 

@@ -29,13 +29,13 @@ columns(x)
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class \code{biom}.
+data in R, there is the class \code{biom}.
 
 These functions apply to an R object that is already of class \code{biom}.
 
-\code{dim()} returns the dimensions of the BIOM data table (a.k.a its \code{shape} in BIOM terminology).  
+\code{dim()} returns the dimensions of the BIOM data table (its \code{shape}, in BIOM terminology).  
 \code{dimnames()} returns the unique row and column \code{id}s that are required by BIOM.
-\code{rows()} (\code{columns()}) returns a list of the row (column) \code{metadata} annotations provisioned by
+\code{rows()} (or \code{columns()}) returns a list of the row (or column) \code{metadata} annotations provisioned by
 BIOM.
 }
 
@@ -61,13 +61,6 @@ Daniel T. Braithwaite
 
 
 \examples{
-if(require(MGRASTer)) {
-	cc <- call.MGRAST('ma', 'or', 
-		id=c(4447943.3, 4447192.3, 4447102.3, 4447103.3), group='family')
-# a warning in the next step is normal
-	bb <- biom(cc)
-	dimnames(bb)
-	dim(bb)
-}
+#
 }
 

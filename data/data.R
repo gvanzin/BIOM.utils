@@ -27,5 +27,5 @@ biom_element_types <- c(
 	"float",
 	"unicode")
 biom_matrix_types <- c(
-	"sparse",
-	"dense")
+	"dense",
+	"sparse")

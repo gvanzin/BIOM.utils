@@ -33,7 +33,7 @@ biom(x, ...)
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class \code{biom}.
+data in R, there is the class \code{biom}.
 
 These functions each transform objects of a basic R type into class \code{biom}.
 

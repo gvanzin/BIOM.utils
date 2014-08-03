@@ -27,7 +27,7 @@ Convert an object of class \code{biom} into a basic type:  \code{matrix}, \code{
 In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
 for a data table expressed in JSON.  BIOM can be described as a format, standard,
 or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the formal class \code{biom}.
+data in R, there is the class \code{biom}.
 
 These functions each transform an object that is already of class \code{biom}, into a basic R type.
 
@@ -65,20 +65,6 @@ Daniel T. Braithwaite
 
 
 \examples{
-if(require(MGRASTer)) {
-	cc <- call.MGRAST('ma', 'or', 
-		id=c(4447943.3, 4447192.3, 4447102.3, 4447103.3), group='family')
-# a warning in the next step is normal
-	bb <- biom(cc)
-	mm <- as.matrix(bb)
-# it is a sparse matrix
-	class(mm)
-	head(mm)
-	dimnames(mm)
-# now dense, with better row names
-	mm <- as.matrix(bb,alt=c(TRUE,FALSE),force=TRUE)
-	class(mm)
-	dimnames(mm)
-}
+#
 }
 
