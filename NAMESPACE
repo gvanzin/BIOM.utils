@@ -9,8 +9,8 @@ export(
 	print.biom,
 	dim.biom,
 	dimnames.biom,
-	rows,
-	columns,
+
+	metadata.biom,
 	
 	as.matrix.biom,			# conversion from
 	as.list.biom,
@@ -20,8 +20,6 @@ export(
 	biom.character,
 	biom.matrix,
 	biom.list,
-	
-	is.biom,				# object validation
 
 	buildBiomExamples,		# package utilities
 	applyBiomMethods,
@@ -42,6 +40,7 @@ S3method (biom, list)
 S3method (biom, matrix)
 S3method (biom, character)
 S3method (print, biomsummary)
+S3method (metadata, biom)
 
 #-----------------------------------------------------------------------------
 #  to save loading time, we don't do this:

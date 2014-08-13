@@ -17,8 +17,6 @@ Report \code{metadata} from \code{rows} and \code{columns} fields.
 \usage{
 \method{dim}{biom}(x)
 \method{dimnames}{biom}(x)
-rows(x)
-columns(x)
 }
 
 \arguments{

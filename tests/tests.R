@@ -1,20 +1,17 @@
-DONE:  matrix, character, file
-TO DO:  
-* fixing  (maybe)
 
-#  use RJSONIO in more sophisticated way .... or rather, replace with JSONlite
+#  TO DO LIST:
+#
+#  for "sparse" and "float" together, note special handling re "mode"
+#  revise text of all messages / warnings / error
 
-#  review is.biom() comprehensively yet again...
-#  can use biom.matrix() within is.biom and/or biom.list() provided recursion is avoided
-#  immediately apply simplify2array within is.biom().  require efficiency; neither do, nor code, things twice
-
-#  remove rows() and columns() entirely?  yes I think so
-
-#  replace with metadata() returning list of 2?  make generic so matR can have metadata.character
-#  or rather, this seems ... silly
-
-#  revise dumb / inaccurate warning messages
-				
+# there should be more tests validating objects by calling all these methods:
+#
+# print(xx)
+# summary(xx)
+# str(xx)
+# dim(xx)
+# dimnames(xx)
+# metadata(xx)
 
 #-----------------------------------------------------------------------------
 #  exported routines and example data:
@@ -39,7 +36,6 @@ TO DO:
 #  li2 -- list:  dense matrix (with dimnames), type, rows, columns
 #  li3 -- list:  dense rowlist, type, rows, columns
 #  li4 -- list:  sparse data as list, and all other components
-#  exfi -- list of files of:  jtxt; dmat saved as .rda; dmat written as tsv
 #-----------------------------------------------------------------------------
 
 library(BIOM.utils)
@@ -51,7 +47,6 @@ str(li1, list.len=5)
 str(li2, list.len=5)
 str(li3, list.len=5)
 str(li4, list.len=5)
-str(exfi)
 
 #-----------------------------------------------------------------------------
 #  constructing from nothing
@@ -80,38 +75,46 @@ biom (smat, type="Taxon")
 biom (smat, type="Taxon", quiet=TRUE)
 
 #  from nameless matrix; sparse representation specified
-biom (smat, type="Taxon", matrix_type="sparse")
+#  note that nothing prevents declaring a sparse matrix bigger than "it really is"
+biom (smat, type="Taxon", sparse=c(266,4))
+biom (smat, type="Taxon", sparse=c(270,5))
+biom (smat, type="Taxon", sparse=c(270,6))
+biom (smat, type="Taxon", sparse=c(270,6), quiet=TRUE)
+
+#  from nameless matrix; sparse representation specified with dimnames
+dd <- list (as.character (200:465), c('A','B','C','D'))
+biom (smat, type="Taxon", sparse=dd)
 biom (smat, type="Taxon", matrix_type="sparse", quiet=TRUE)
 
 #  from named matrix; ensure matrix_element_type is "int"
 mm <- dmat
 mode(mm) <- "integer"
-biom(mm, type="Taxon", matrix_type="dense")
+biom(mm, type="Taxon")
 
 #  from named matrix; ensure matrix_element_type is "float"
 mm <- dmat
 mode(mm) <- "double"
-biom(mm, type="Taxon", matrix_type="dense")
+biom(mm, type="Taxon")
 
 #  from named matrix; ensure matrix_element_type is "Unicode"
 mm <- dmat
 mode(mm) <- "character"
-biom(mm, type="Taxon", matrix_type="dense")
+biom(mm, type="Taxon")
 
 #  from nameless matrix; sparse specified; ensure matrix_element_type is "int"
 mm <- smat
 mode(mm) <- "integer"
-biom(mm, type="Taxon", matrix_type="sparse")
+biom(mm, type="Taxon", sparse=c(270,6))
 
 #  from nameless matrix; sparse specified; ensure matrix_element_type is "float"
 mm <- smat
 mode(mm) <- "double"
-biom(mm, type="Taxon", matrix_type="sparse")
+biom(mm, type="Taxon", sparse=c(270,6))
 
 #  from named matrix; ensure matrix_element_type is "Unicode"
 mm <- smat
 mode(mm) <- "character"
-biom(mm, type="Taxon", matrix_type="sparse")
+biom(mm, type="Taxon", sparse=c(270,6))
 
 
 #-----------------------------------------------------------------------------
@@ -126,17 +129,7 @@ biom (jtxt, quiet=TRUE)
 #-----------------------------------------------------------------------------
 
 #  from an .rda file, read in a single object of any kind, and apply biom()
-biom (file=exfi$rda)
-
-#  from a non-rda file, the contents of which isValidJSON() approves
-biom (file=exfi$json)
-
-#  from a non-rda file _supposed_ to be JSON
-biom (file=exfi$json, force.JSON=TRUE)
-
-#  from a file, not isValidJSON() nor .rda, but rather a text data table
-biom (file=exfi$text)
-
+biom (file=exampleBiomFile())
 
 #-----------------------------------------------------------------------------
 #  constructing from list
@@ -193,10 +186,10 @@ biom (quiet=TRUE, list(
 #  from list of:  unnamed matrix, sparse indicated
 biom (list(
 	data=smat,
-	matrix_type="sparse"))
+	sparse=c(266,4)))
 biom (quiet=TRUE, list(
 	data=smat,
-	matrix_type="sparse"))
+	sparse=c(266,4)))
 
 #  from list of:  named matrix (dense), biom type, metadata (supercedes dimnames)
 biom (li2)
@@ -227,19 +220,19 @@ biom (li4)
 
 #  from list of:  matrix (dense), with everything (metadata supercedes dimnames)
 li <- li4
-li$data <- as.matrix (biom (li), force.dense=TRUE)
+li$data <- as.matrix (biom (li), dense=TRUE)
 dimnames (li$data) <- list (1:nrow(li$data), 1:ncol(li$data))
 li$matrix_type <- "dense"
 biom (li)
 
 #  same as above, but omit to reset matrix_type  (so, an error)
 li <- li4
-li$data <- as.matrix (biom (li), force.dense=TRUE)
+li$data <- as.matrix (biom (li), dense=TRUE)
 try (biom (li))
 
 #  from list of:  rowlist (dense), with everything
 li <- li4
-li$data <- as.matrix (biom (li), force.dense=TRUE)
+li$data <- as.matrix (biom (li), dense=TRUE)
 li$data <- lapply (apply (dmat, 1, list), unlist, rec=F)
 li$matrix_type <- "dense"
 biom (li)
@@ -299,15 +292,15 @@ tt <- tempfile()
 as.character (biom (jtxt), file=tt)
 as.character (biom (jtxt))
 as.matrix (biom (jtxt))
-as.matrix (biom (jtxt), force.dense=TRUE)
+as.matrix (biom (jtxt), dense=TRUE)
 as.list (biom (jtxt))
 biom (as.matrix (biom (jtxt)))
-biom (as.matrix (biom (jtxt), force.dense=TRUE))
+biom (as.matrix (biom (jtxt), dense=TRUE))
 biom (as.list (biom (jtxt)))
 unlink (tt)
 
 as.matrix (biom (smat, matrix="sparse"))
-as.matrix (biom (smat, matrix="sparse"), force.dense=TRUE)
+as.matrix (biom (smat, matrix="sparse"), dense=TRUE)
 as.character (biom (smat, matrix="sparse"))
 as.list (biom (smat, matrix="sparse"))
 biom (as.character (biom (smat, matrix="sparse")))
@@ -326,7 +319,79 @@ biom (as.character (biom (li)))
 
 as.list (biom (li4)))
 as.matrix (biom (li4))
-as.matrix (biom (li4), force.dense=TRUE)
+as.matrix (biom (li4), dense=TRUE)
 as.character (biom (l4))
-biom (as.matrix (biom (li4)), force.dense=TRUE)
+biom (as.matrix (biom (li4)), dense=TRUE)
 biom (as.character (biom (l4)))
+
+
+#-----------------------------------------------------------------------------
+#  test utilities
+#-----------------------------------------------------------------------------
+
+onecol <- dmat [,1,drop=FALSE]
+dense2sparse (onecol)
+sparse2dense (dense2sparse (onecol))
+matrix2list (onecol)
+matrix2list (onecol, 2)
+
+dense2sparse (dmat)
+sparse2dense (smat)
+matrix2list (dmat)
+matrix2list (smat)
+matrix2list (dmat,2)
+matrix2list (smat,2)
+
+#-----------------------------------------------------------------------------
+# stress-test one-column case
+#-----------------------------------------------------------------------------
+
+xx <- dmat [ ,1,drop=F]
+ss <- smat [ ,smat[,2]==1]
+
+# etc etc etc
+
+
+#-----------------------------------------------------------------------------
+# test passing in and out of a file
+#-----------------------------------------------------------------------------
+
+biom(as.character(biom(li4)))
+tt <- tempfile()
+biom(file=tt, as.character(file=tt, biom(li4)))
+
+#-----------------------------------------------------------------------------
+#  test specifying matrix_element_type implicitly with storage.mode in matrix construction
+#-----------------------------------------------------------------------------
+
+storage.mode(dmat) <- "integer"			# matrix_element_type "int"
+biom(dmat)
+as.character(biom(dmat))
+biom (file=tt, as.character (file=tt, biom (dmat)))
+
+storage.mode(dmat) <- "double"			# matrix_element_type "float"
+biom(dmat)
+as.character(biom(dmat))
+biom (file=tt, as.character (file=tt, biom (dmat)))
+
+storage.mode(dmat) <- "character"		# matrix_element_type "unicode"
+biom(dmat)
+as.character(biom(dmat))
+biom (file=tt, as.character (file=tt, biom (dmat)))
+
+
+#-----------------------------------------------------------------------------
+#  test specifying matrix_element_type in list construction
+#-----------------------------------------------------------------------------
+
+biom(li4, matrix_element_type="int")
+as.character(biom(li4, matrix_element_type="int"))
+biom (file=tt, as.character (file=tt, biom (li4, matrix_element_type="int")))
+
+biom(li4, matrix_element_type="float")
+as.character(biom(li4, matrix_element_type="float"))
+biom (file=tt, as.character (file=tt, biom(li4, matrix_element_type="float")))
+
+biom(li4, matrix_element_type="unicode")
+as.character(biom(li4, matrix_element_type="unicode"))
+biom (file=tt, as.character(file=tt, biom(li4, matrix_element_type="unicode")))

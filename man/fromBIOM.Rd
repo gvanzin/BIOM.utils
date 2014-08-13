@@ -34,7 +34,7 @@ These functions each transform an object that is already of class \code{biom}, i
 \code{as.matrix()} returns the BIOM data table as a \code{matrix}, with \code{dimnames} equal to the
 BIOM row and column \code{id}s.  \code{as.character()} returns BIOM properly speaking --- that is, 
 it returns (a length-one \code{character} vector of) text that encodes data and annotations in JSON
-following BIOM.
+following BIOM.  (Currenlty this package implements BIOM v. 1.0.)
 
 \code{as.list()} returns a \code{list}, closely corresponding element-by-element to BIOM.  
 The differences are:  \code{data} is a \code{matrix}, not a \code{list}; its

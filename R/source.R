@@ -1,47 +1,90 @@
-
-
-
-# note special handling needed re "mode" when sparse & "float"
-
-# make sure carefully i'm doing the right thing, for "Unicode" encoding
-
-# compare biom parameters in a single letter case (upper or lower) here and elsewhere
-
-
-
-# docs for all as() functions:
-# Conversion functions return data in sparse or dense representation, according to matrix_type.
+#  possible content for docs:
 #
-# as.matrix():
-# However, a "dense" matrix is always returned when "dense=TRUE"
-# Note that "dense=FALSE" has no effect when "matrix_type==\"dense\"".
-# We do not employ the Matrix package, which implements sparse matrices in R.
-# But see below for an example using the "sparseMatrix" class from that package.
+#  as() functions:
+#  Conversion functions return x$data in sparse or dense representation, according to matrix_type.
 #
-# dim():
-# if matrix_type=="sparse" the return value has an attribute "nnz" (for "number not zero").  
-# Without "dense=TRUE", as.matrix() returns a matrix with this many rows and three columns
-# that comprises the sparse representation of the data.
+#  as.matrix():
+#  "dense=FALSE" has no effect when "matrix_type==\"dense\"".
+#  when "matrix_type==\"sparse\"", the effect of "dense=TRUE" is to expand the sparse representation.
+#  We do not employ the Matrix package, which implements sparse matrices in R.
+#  But see below for an example using the "sparseMatrix" class from that package.
 #
-# as.character():
-# Argument "file" is not part of a broader scheme to output files of arbitrary types.
-# Rather, it is provided because we regard JSON text _in_a_file_ as a native form of storage for BIOM
-# for csv/tsv, see below for an example with write.table()
+#  dim():
+#  if matrix_type=="sparse" the return value has an attribute "nnz" (for "number not zero").  
+#  Without "dense=TRUE", as.matrix() returns a matrix with this many rows and three columns,
+#  comprising the sparse representation of the data.
 #
+#  as.character():
+#  The argument "file" is not provided as part of a broader scheme to output files of arbitrary types.
+#  Rather, it is provided because we regard JSON text _in_a_file_ as a native form of storage for BIOM
+#  for csv/tsv, see below for an example with write.table()
+#  #  how to write out data as a CSV or TSV file
+#  write.table(as.matrix(x))
+#  a "biom" object reflects its BIOM matrix_element_type implicitly, by its R storage mode.
+#
+#  biom.character():
+#  The argument "file" is not provided as part of a broader scheme to input files of arbitrary types.
+#  Rather, it is provided because we regard JSON text _in_a_file_ as a native form of storage for BIOM.
+#  see below for an example of reading in a table in tsv, csv, or other text format
+#  #  how to read in data from a CSV or TSV table
+#  biom(as.matrix(read.table("file.txt")))
+#  ... arguments are passed to fromJSON.  in particular to allow various character encodings.
+#  a "biom" object reflects its BIOM matrix_element_type implicitly, by its R storage mode.
+#
+#  biom.matrix():
+#  In R, values that seem to be integers are often not.
+#  To force "matrix_element_type == \"int\"" in a "biom" object, use mode(xx) <- 'integer' before "biom(xx)"
 
 
-#-----------------------------------------------------------------------------
-#  BIOM format constitutes a simple standard for annotation of a two-dimensional
+
+#
+#  BIOM format comprises a simple standard for annotation of a two-dimensional
 #  matrix:  http://biom-format.org/documentation/format_versions/biom-1.0.html.
-#  We implement a corresponding "biom" class.
 #
-#  This R implementation of BIOM format version 1.0 emphasizes
-#  convenient import, export, and integration of data and metadata with
-#  R functionality.
+#  Here, a corresponding "biom" class is implemented to emphasize integration of
+#  data and metadata with R functionality, plus convenient import and export.
+#  The objects have class(x) == c("biom", "list").  
 #
-#  These objects have class(x) equal to c("biom", "list").
-#-----------------------------------------------------------------------------
-
+#  The representation is:
+#
+#		BIOM element				"biom" class element
+#       ------------				--------------------
+#		id							id
+#		format						format
+#		format_url					 --
+#		type						type
+#		generated_by				generated_by
+#		date						date
+#  
+#		rows						 --
+#			id						rownames (data)		OR		sparse $ dimnames [[1]]
+#			metadata				rows
+#		columns						 --
+#			id						colnames (data) 	OR		sparse $ dimnames [[2]]
+#			metadata				columns
+#  
+#		matrix_type					sparse
+#		matrix_element_type			 --
+#		shape						sparse $ dim
+#		data						data
+#
+#		comment						comment
+#
+#  Notes:
+#
+#		1) x$data is always "matrix" class
+#
+#		2) if the BIOM matrix_type is "dense" then 
+#				dim(x$data)			is		BIOM shape
+#				rownames(x$data)	has		BIOM row ids  (but dimnames is unnamed list)
+#				colnames(x$data)	has		BIOM column ids  (but dimnames is unnamed list)
+#
+#		3) whereas if matrix_type is "sparse" then
+#				dim(x$data)"		is 		(# nonzero entries), 3
+#				dimnames(x$data)	is		NULL
+#				x$sparse$dim		is		BIOM shape
+#				x$sparse$dimnames	has		BIOM row and column ids (list of "rows=", "columns=")
+#
 
 ##############################################################################
 ##############################################################################
@@ -52,46 +95,51 @@
 ##############################################################################
 
 #-----------------------------------------------------------------------------
-#  a slightly prettified version of str.default(),
-#  tailored to our objects.
+#  str() method to pretty-print object structure
 #-----------------------------------------------------------------------------
 
 str.biom <- function (object, ...) {
-	str (unclass (object) [c(
-			"rows",
-			"columns",
-			"data",
-			"shape",
-			"matrix_type",
-			"matrix_element_type",
-			"type",
-			"format",
-			"format_url",
-			"date",
-			"id",
-			"generated_by")],
-		vec.len=1, nchar.max=35, strict.width="wrap", give.attr=FALSE, list.len=12, ...)
+	object <- unclass (object)
+	str (object [c ("rows", "columns")], vec.len=1, nchar.max=35, list.len=3, 
+		max.lev=3, no.list=T, give.attr=F)
+	jj <- c("data", 
+		if (!is.null (object$sparse)) "sparse", 
+		"type", 
+		"format", 
+		"date", 
+		"id", 
+		"generated_by", 
+		if (!is.null (object$comment)) "comment")
+	str (object [jj], vec.len=1, nchar.max=35, no.list=T, give.attr=F)
 	}
 
 #-----------------------------------------------------------------------------
-#  summary() omits showing the matrix data,
-#  but shows all other contents of the object.
+#  summary() method to nicely output meta-content (omitting the 'primary' data)
 #-----------------------------------------------------------------------------
 
 summary.biom <- function (object, ...) { 
-	dims <- paste (dim (object), collapse="x")
-	xx <- with (object, { paste(
-		"identifier: ", id,
-		"\ngenerated by: ", generated_by, " on ", date, "\n",
-		matrix_type, " ", type, " (", dims, ")\n", 
-		format, "\n", sep="") })
+	dd <- dim (object)
+	ss <- paste (dd, collapse="x")
+	if (!is.null (attr (dd, "nnz")))
+		ss <- paste0 (ss, " of which ", attr (dd, "nnz"), " nonzero")
+	xx <- with (object, { paste0(
+			"[id:] ", id, "\n",
+
+			"[generated_by:] ", generated_by, " on [date:] ", date, "\n",
+
+			"[type:] ", if (exists ("sparse", inherits=F)) "sparse " else "dense ", 
+			type, " (", ss, ")\n", 
+
+			"[format:] ", format, "\n",
+			
+			if (exists ("comment", inherits=F)) paste("[comment:] ", comment, "\n")) })
+
 	class (xx) <- c("biomsummary", "character")
 	xx
 	}
 
 #-----------------------------------------------------------------------------
-#  summary() canonically returns a classed object with its own print() method.
-#  print() canonically returns invisibly the object printed.
+#  method to print the summary() object (also, returns it invisibly)
 #-----------------------------------------------------------------------------
 
 print.biomsummary <- function (x, ...) {
@@ -100,48 +148,63 @@ print.biomsummary <- function (x, ...) {
 	}
 
 #-----------------------------------------------------------------------------
-#  print() shows the full contents of the object,
-#  including the matrix data.
+#  print() method to output full contents (canonically returns object invisibly)
 #-----------------------------------------------------------------------------
 
 print.biom <- function (x, ...) {
-	print (as.matrix (x))
+	print (as.matrix (x, dense=TRUE))
+	cat("\n")
 	print (summary (x))
 	invisible (x)
 	}
 
 #-----------------------------------------------------------------------------
-#  dim() gives shape of the matrix (whether or not sparse)
+#  dim(x) method returns the BIOM "shape"
+#  with additional attribute "nnz" (number not zero) if matrix_type is sparse.
+#  "nnz" equals the number of values in the sparse representation.
 #-----------------------------------------------------------------------------
 
 dim.biom <- function (x) {
-	if (x$matrix_type == "dense") {
-		dim (x$data)
-	} else {
-		y <- as.integer (x$shape)
-		attr (y, "nnz") <- nrow (x$data)
-		y
-		}
+	with (x, {
+		if (exists ("sparse", inherits=FALSE)) {
+			attr (sparse$dim, "nnz") <- nrow (data)
+			sparse$dim
+		} else
+			dim (data)
+		} )
 	}
 
 #-----------------------------------------------------------------------------
-#  and dimnames().
-#  we implement neither rownames() nor colnames() here.
-#  they are not already generic, and to resolve that properly moves 
-#  outside the concept of this package to be as simple as possible.
+#  dimnames() method returns BIOM "ids" in a list of 
+#  two components named "rows" and "columns".
+#  if the matrix is dense, those names are added.
+#  but sparse$dimnames should already have those names, if it exists.
+#
+#  rownames() and colnames() are not generic, so not implemented here.
 #-----------------------------------------------------------------------------
 
 dimnames.biom <- function (x) {
-	if (x$matrix_type == "dense") {
-		dd <- dimnames (x$data)
-		names (dd) <- c ("rows", "columns")
-		dd
-	} else
-		list (rows=x$rownames, columns=x$colnames)
+	with (x, {
+		if (exists ("sparse", inherits=FALSE)) {
+			sparse$dimnames
+		} else {
+			names (dimnames (data)) <- c ("rows", "columns")
+			dimnames (data)
+		} } )
 	}
 
-metadata.biom <- function (x, simplify=NULL) {
-	list (rows = simplify2array (x$rows), columns = simplify2array (x$rows))
+#-----------------------------------------------------------------------------
+#  "metadata() returns BIOM "metadata" in a list of
+#  two component named "rows" and "columns".
+#-----------------------------------------------------------------------------
+
+metadata <- function (x, ...) UseMethod("metadata")
+
+metadata.biom <- function (x, ...) {
+	invisible (with (x, 
+		list(
+			rows = rows,
+			columns = columns)))
 	}
 
 ##############################################################################
@@ -153,72 +216,110 @@ metadata.biom <- function (x, simplify=NULL) {
 ##############################################################################
 
 #-----------------------------------------------------------------------------
-#  1) data always stored as "matrix"
+#  as.matrix() method returns:
 #
-#  2) if matrix_type=="sparse" then it is nnzero * 3
-#     and "rownames" and "colnames" are additional list elements holding BIOM "ids"
+#    for "dense", a "matrix" of the object's data
 #
-#  3) if matrix_type=="dense" then it is nrow * ncol
-#     and its actual rownames and colnames hold BIOM "ids"
+#    for "sparse", by default the 3-column sparse representation "matrix"
+#      ...in that case "rownames" and "colnames" attributes are attached, containing 
+#      the BIOM "id"s  ("dimnames" has a special meaning to R, so is not used)
+#    but on request, the full "matrix" is returned, zero-filled (dims equal to the BIOM "shape")
 #
-#  4) maybe simplify2array rows and columns in the internal representation??
+#  the default value of "dense" is not "FALSE" to avoid misleading:
+#  a dense matrix can only be returned dense
 #-----------------------------------------------------------------------------
 
-as.matrix.biom <- function (x, dense = NULL, ...) {
-	if (x$matrix_type == "sparse") {
-		if (dense) {
-			< make unsparse >
-			y
-		} else {
-			y <- x$data
-#  we don't use dimnames because it has a meaning to R that would not be correct, here
-			attr (y, "rownames") <- x$rownames
-			attr (y, "colnames") <- x$colnames
-			y
+as.matrix.biom <- function (x, dense=NULL, ...) {
+	invisible (with (x, {
+		if (exists ("sparse", inherits=F)) {
+			if (isTRUE (dense)) {
+
+				data <- make.dense (data, sparse$dim)
+				dimnames (data) <- sparse$dimnames
+				names (dimnames (data)) <- NULL
+
+			} else {
+				attr (data, "rownames") <- sparse$dimnames [[1]]
+				attr (data, "colnames") <- sparse$dimnames [[2]]
+				}
 			}
-	} else x$data
+
+		data } ))
 	}
 
 #-----------------------------------------------------------------------------
-#  "biom" objects are already "list"s, so 
-#  removing the class attribute is enough to convert
+#  as.list() method reorganizes internally to resemble the BIOM specification,
+#  except that:
+#		row and column "id"s are list elements, not part of "rows" and "columns"
+#		"data" remains a matrix, not a list
+#		"format_url" is missing
 #-----------------------------------------------------------------------------
 
 as.list.biom <- function (x, ...) {
-	unclass (x)
+	y <- list()
+
+	y [c ("id", "format", "type", "generated_by", "date")] <- 
+		x [c ("id", "format", "type", "generated_by", "date")]
+
+	y$rows <- x$rows
+	y$columns <- x$columns
+	y$row.ids <- dimnames (x) [[1]]
+	y$column.ids <- dimnames (x) [[2]]
+
+	y$matrix_type			<- if (is.null (x$sparse)) "dense" else "sparse"	
+	y$matrix_element_type	<- 
+		if (is.integer(x$data)) {
+			"int"
+		} else if (is.numeric (x$data)) {
+			"float"
+		} else "unicode"
+	y$shape					<- as.integer (dim (x))				# clear "nnz" attribute if present
+	y$data					<- x$data
+
+	y$comment <- x$comment
+	invisible (y)
 	}
 
 #-----------------------------------------------------------------------------
-#  conversion to JSON text requires:
-#    -conform 'rows' and 'columns' by adding ID field
-#    -for 'dense', write out list of rows, so to speak, verbatim
-#    -for 'sparse', write out (row,column,value) triples
+#  as.character() converts to JSON text, in a "character" mode object, or file.
+#  if, to file, then the text is prettily-formatted, otherwise not.
 #-----------------------------------------------------------------------------
 
 as.character.biom <- function (x, ..., file=NULL) {
 	library(RJSONIO)
-	x$rows <- mapply (function (xx, yy) list (id=xx, metadata=yy),
-		as.list (rownames (x$data)),
-		x$rows)
-	x$columns <- mapply (function (xx, yy) list (id=xx, metadata=yy),
-		as.list (colnames (x$data)),
-		x$columns)
-	x$data <-
-		if (x$matrix_type == "dense") {
-			apply (x$data, 1, as.list)
+
+	x <- as.list (x)
+
+	within (x, {
+		format <- if (is.integer (data)) {
+			"int"
+		} else if (is.numeric (data)) {
+			"float"
 		} else {
-			ss <- which (x$data != 0, arr.ind=TRUE)
-			rr <- t (mapply (function (i, j, m) c (i, j, m [i,j]),
-				ss [,1], ss[,2], MoreArgs = list (x$data)))
-			rr [,1] <- rr[,1] - 1
-			rr [,2] <- rr[,2] - 1
-			apply (rr, 1, as.list)
-		}
+			data <- as.character (data)
+			"unicode"
+			}
+		data <- make.list (data)
+		rows <- mapply (list,
+			id = as.list(row.ids), 
+			metadata = rows, 
+			SIMPLIFY = F)
+		columns <- mapply (list, 
+			id = as.list(column.ids), 
+			metadata = columns,
+			SIMPLIFY=F) 
+		format_url <- biom_format_url
+		} )
+	x$row.ids <- x$column.ids <- NULL
+
 	if (!is.null (file)) {
-		writeLines (toJSON (x, pretty=TRUE, ...), file = ...)
+		if (x$format == "unicode") {
+			writeLines (enc2utf8 (toJSON (x, pretty=TRUE, ...)), file, useBytes=T)
+		} else
+			writeLines (toJSON (x, pretty=TRUE, ...), file)
 		file
 	} else
-		toJSON (x, ...)
+		invisible (toJSON (x, ...))
 	}
 
 
@@ -233,330 +334,170 @@ as.character.biom <- function (x, ..., file=NULL) {
 biom <- function (x, ...) UseMethod("biom")
 
 #-----------------------------------------------------------------------------
-#  here we expect and require fromJSON() to return an appropriate list.
-#  see below for biom.list().
+#  here we require fromJSON() to return an appropriate list, 
+#  and then call the "list" method on it.
 #-----------------------------------------------------------------------------
 
-biom.character <- function (x, ..., file = NULL, json = NULL, quiet = FALSE) {
-# delay loading this -- actually not always necess:   library(RJSONIO)
-	if (!is.null (file)) {
-		if (< is .rda file >) {
-			< load and apply biom() >
-		} else {
-			x <- readLines (file, warn=!quiet)
-			if (isValidJSON (x) || isTRUE (json)) {
-				< parse JSON or bust >
-			} else {
-				< read as tsv / csv separated >
-				}
-			}
-		} 
-	biom (fromJSON (x, asText=TRUE, simplify=TRUE), quiet=quiet)
+biom.character <- function (x, ..., file=NULL, quiet=FALSE) {
+	library (RJSONIO)
+
+#  there is some work to be done here, to use RJSONIO more intelligently
+
+	if (is.null (file)) {
+		biom (fromJSON (x, asText=TRUE, simplify=TRUE, ...), quiet=quiet)
+	} else
+		biom (fromJSON (x, simplify=TRUE, ...), quiet=quiet)
 	}
 
 #-----------------------------------------------------------------------------
-#  from matrix, just invent something appropriate for all fields.
-#  use mode(mm) <- 'integer' to force matrix_element_type == 'int'
+#  from "matrix", just invent something appropriate for all fields.
+#  "sparse" may be given in two formats:
+#		c (integer, integer)		indicating matrix dimensions
+#		list (character, character)	indicating matrix rownames and colnames
+#  this constructor does not handle:
+#		metadata
+#		matrix_element_type issues
+#		comment
 #-----------------------------------------------------------------------------
 
-biom.matrix <- function (x, type=biom_table_types, matrix_type=biom_matrix_types, ..., quiet = FALSE) {
+biom.matrix <- function (x, type=biom_table_types, sparse=NULL, ..., quiet=FALSE) {
 	if (quiet) warning <- function (...) { }
-	if (missing (type)) {
-		warning ("making arbitrary assignment for missing type")
-		}
-	if (is.null (rownames (x))) {
-		warning ("using default row ids because rownames are missing")
-		rownames(x) <- 1:nrow(x)
-		if (ncol (x) == 3 && missing (matrix_type)) {
-			warning ("not interpreting three-column data as a sparse representation")
-			}
-		}
-	if (is.null (colnames (x))) {
-		warning ("using default column ids because colnames are missing")
-		colnames(x) <- 1:ncol(x)
-		}
+
+	if (missing (type))
+		warning ("assigning arbitrary type")
+
+	if (is.null (sparse) && ncol(x) == 3)
+		warning ("not interpreting three-column data as a sparse representation")
+
 	y <- list()
-	y$type <- match.arg (type)
-	y$data <- x
-	y$shape <- dim (x)
-	y$rows <- replicate (nrow(x), character(0))
-	y$columns <- replicate (ncol(x), character(0))
-	y$matrix_type <- match.arg (matrix_type)
-	y$matrix_element_type <-
-		if (is.integer (x)) {
-			"int"
-		} else if (is.numeric (x)) {
-			"float"
-		} else
-			"unicode"
-	class (y) <- c ("biom", "list")
-	is.biom (y, fix=TRUE, quiet=quiet)
-	}
 
-#-----------------------------------------------------------------------------
-#  allow an empty list here.
-#  (it would not be fixed by is.biom().)
-#  is.biom() would fix the "class", but we would like to avoid a warning
-#-----------------------------------------------------------------------------
+	if (is.null (sparse)) {
 
-#  "id" from "rows" and "columns" must supercede dimnames of matrix
+		if (is.null (rownames (x))) {
+			rownames (x) <- 1:nrow(x)
+		} else if (anyDuplicated (rownames (x)))
+			stop ("non-unique rownames")
 
-biom.list <- function (x, ..., quiet = FALSE) { 
-	if (quiet) warning <- function (...) { }
-	if (is.null (x$data)) {
-		warning ("object is empty and of arbitrary type")
-		x <- list (
-			rows = list(),
-			columns = list(),
-			data = list(),
-			shape = c(0,0),
-			matrix_type = "dense",
-			matrix_element_type = "unicode",
-			type = biom_table_types [1],
-			format = "Biological Observation Matrix 1.0",
-			format_url = "",
-			date = strftime (Sys.time()),
-			id = "",
-			generated_by = 
-				paste("BIOM.utils (", packageVersion("BIOM.utils"), ")", sep=""))
-		class (x) <- c("biom", "list")
-		return (x)
-		}
-	class (x) <- c("biom", class (x))
-	is.biom (x, fix=TRUE, quiet=quiet)
-	}
+		if (is.null (colnames (x))) {
+			colnames (x) <- 1:ncol(x)
+		} else if (anyDuplicated (colnames (x)))
+			stop ("non-unique colnames")
 
+		names (dimnames (x)) <- NULL
 
-##############################################################################
-##############################################################################
-##
-##  OBJECT VALIDATION
-##
-##############################################################################
-##############################################################################
+		y$rows <- replicate (nrow(x), character(0))
+		y$columns <- replicate (ncol(x), character(0))
 
-is.biom <- function (x, fix=FALSE, check.all=fix, quiet=!check.all) {
-	if (quiet) warning <- function (...) { }
+	} else {
+		dimnames (x) <- NULL
 
-#-----------------------------------------------------------------------------
-#  this is the best place to check & warn of conflicting package "biom"
-#  because the current function drives our package
-#-----------------------------------------------------------------------------
-	if ("package:biom" %in% search())
-		warning ("related package \"biom\" is loaded and may cause conflicts")
+		y$sparse <- if (is.list (sparse)) {
+				names(sparse) <- c("rows", "columns")
+				list(
+					dimnames = sparse,
+					dim = c (
+						length (sparse[[1]]), 
+						length (sparse[[2]])))
+			} else if (is.numeric (sparse)) {
+				list(
+					dim = sparse,
+					dimnames = list(
+						rows = 1:sparse[1], 
+						columns = 1:sparse[2]))
+			} else
+				stop ("bad specification of sparse data")
 
-#-----------------------------------------------------------------------------
-#  object must be "list" already
-#  adjust class to treat as list throughout
-#-----------------------------------------------------------------------------
-	if (!is.list (x)) {
-		warning ("object is not list")
-		if (!fix) return (FALSE) else stop ("cannot fix")
-		}
-	cl <- class (x)
-	x <- unclass (x)
-
-#-----------------------------------------------------------------------------
-#  list components must be named
-#-----------------------------------------------------------------------------
-	if (is.null (names (x))) {
-		warning ("components are unnamed")
-		if (!fix) return (FALSE) else stop ("cannot fix")
-		}
-
-#-----------------------------------------------------------------------------
-#  extraneous fields produce a warning but not failure;
-#  duplicate fields produce failure but can be fixed;
-#  if need be, remove extraneous and duplicate fields
-#-----------------------------------------------------------------------------
-	if (!all (belong <- names(x) %in% biom_fields))
-		warning ("extraneous field(s): ", collapse (names (x) [!belong]))
-
-	if (any (dups <- table (names(x)) > 1)) {
-		warning ("duplicate fields: ", collapse (names (x) [dups]))
-		if (!fix) return (FALSE)
-		}
-	x <- x [biom_fields [have <- biom_fields %in% names(x)]]
-	
-#-----------------------------------------------------------------------------
-#  note missing fields;
-#  fail if impossible to recover;
-#  but otherwise make simple corrections right away
-#-----------------------------------------------------------------------------
-	missing <- biom_fields [!have]
-	if (length (missing)) {
-		warning ("missing field(s): ", collapse (missing))
-		if (!fix) return (FALSE)
-		if ("data" %in% missing) stop ("cannot fix without \"data\"")
-
-		if ("id" %in% missing) 				x$id <- ""
-		if ("format" %in% missing)			x$format <- "Biological Observation Matrix 1.0"
-		if ("format_url" %in% missing)		x$format_url <- ""
-		if ("generated_by" %in% missing)	x$generated_by <- 
-			paste("BIOM.utils (", packageVersion("BIOM.utils"), ")", sep="")
-		if ("date" %in% missing)			x$date <- strftime(Sys.time())
-		if ("matrix_element_type" %in% missing)		x$matrix_element_type <- "unicode"
-		if ("matrix_type" %in% missing)		x$matrix_type <- "dense"
-		if ("type" %in% missing)			x$type <- biom_table_types [1]
-
-# no - need x$data here.
-# taken care of?  (29 July)
-		if ("rows" %in% missing)			x$rows <- replicate (nrow(x$data), character(0))
-		if ("columns" %in% missing)			x$columns <- replicate (ncol(x$data), character(0))
+		y$rows <- replicate (y$sparse$dim[1], character(0))
+		y$columns <- replicate (y$sparse$dim[2], character(0))
 		}		
 
-#-----------------------------------------------------------------------------
-#  check controlled vocabs (type, matrix_element_type, matrix_type)
-#-----------------------------------------------------------------------------
-	if (! (x$type %in% biom_table_types)) {
-		warning ("invalid \"type\": ", x$type)
-		if (!fix) return (FALSE)
-		if (is.na (k <- pmatch (x$type, biom_table_types))) stop("cannot fix") else 
-			x$type <- biom_table_types[k]
-		}
-	if (! (x$matrix_element_type %in% biom_element_types)) {
-		warning ("invalid \"matrix_element_type\": ", x$matrix_element_type)
-		if (!fix) return (FALSE) 
-		if (is.na (k <- pmatch (x$matrix_element_type, biom_element_types))) stop("cannot fix") else 
-			x$matrix_element_type <- biom_element_types[k]
-		}
-	if (! (x$matrix_type %in% biom_matrix_types)) {
-		warning ("missing or bad \"matrix_type\": ", x$matrix_type)
-		if (!fix) return (FALSE)
-		if (is.na (k <- pmatch (x$matrix_type, biom_matrix_types))) stop("cannot fix") else 
-				x$matrix_type <- biom_matrix_types[k]
-		}
+	y$data			<-		x
+	y$type			<-		match.arg (type)
+
+	y$id			<-		""
+	y$generated_by	<-		paste("BIOM.utils (", packageVersion("BIOM.utils"), ")", sep="")
+	y$date			<-		strftime(Sys.time())
+	y$format		<- 		biom_format
+
+	class (y) <- c ("biom", "list")
+	invisible (y)
+	}
 
 #-----------------------------------------------------------------------------
-#  allow for fixing 'data' given as 'list' (to be 'matrix' instead)
-#  a flag allows removal of "id" from metadata later
-#-----------------------------------------------------------------------------  
-	waslist <- FALSE
-	if (is.list (x$data)) {
-		waslist <- TRUE
-		warning ("data is given as \"list\"")
-		if (!fix) return (FALSE)
+#  construct using "matrix" method, then augment with any other provided data
+#-----------------------------------------------------------------------------
 
-		mm <- x$data <- t (simplify2array (x$data))
-		if (class (mm) != "matrix") stop ("malformed \"data\" list does not simplify to matrix")
-#-----------------------------------------------------------------------------  
-#  sparse and dense cases are different
-#  we require sparsity to be explicit (from the user)
-#-----------------------------------------------------------------------------  
-		if (x$matrix_type == "sparse") {
-			if ("shape" %in% missing) stop ("cannot fix sparse list data without \"shape\"")
-			di <- x$shape
-			mm [,1:2] <- mm [,1:2] + 1
-			colnames (mm) <- c("row", "col", "value")
-#-----------------------------------------------------------------------------  
-#  reshape used instead of Matrix package (for speed)
-#-----------------------------------------------------------------------------  
-			df <- reshape (data.frame(mm), v.names="value", idvar="row", timevar="col", direction="wide")
-#-----------------------------------------------------------------------------  
-#  entire rows / columns of zero will be missing
-#  so convert the reshaped data to proper dims
-#-----------------------------------------------------------------------------  
-			mm <- matrix (NA, nrow = di[1], ncol = di[2])
-			cols <- paste ("value", 1:ncol(mm), sep=".")
-			j <- cols %in% names(df)
-			mm [df$row, j] <- as.matrix (df [ , cols[j]])
-			mm [is.na (mm)] <- 0
-			x$data <- mm
-			}
+biom.list <- function (x, ..., quiet=FALSE) { 
+	if (quiet) warning <- function (...) { }
+
+	if (is.null (x$data)) {
+		mm <- matrix (nr=0, nc=0)
+	} else if (is.matrix (x$data)) {
+		mm <- x$data
+	} else {
+		mm <- simplify2array (x$data)
+		if (is.vector (mm)) {				#  whoops, one-column matrix oversimplified to vector
+			mm <- as.matrix (mm)
+		} else
+			mm <- t(mm)
 		}
 
-#-----------------------------------------------------------------------------
-#  now that we know 'data' is a matrix, can assign 'shape', if missing
-#-----------------------------------------------------------------------------
-	if ("shape" %in% missing) x$shape <- dim (x$data)
+	if (!is.null (x$matrix_element_type))
+		mm <- switch (x$matrix_element_type,
+			int = as.integer,
+			float = as.numeric,
+			unicode = as.character) (mm)
 
-#-----------------------------------------------------------------------------
-#  check has row and col names (to serve as ids)
-#-----------------------------------------------------------------------------
-	if (is.null (rownames (x$data))) {
-		warning ("\"data\" has no rownames")
-		if (!fix) return (FALSE) else rownames(x$data) <- 1:nrow(x$data)
+	row.ids <- column.ids <- NULL
+	if (!is.null (x$rows)) {
+		row.ids <- sapply (x$rows, `[[`, "id")
+		if (any (sapply (row.ids, is.null))) {
+			row.ids <- NULL
+		} else 
+			x$rows <- lapply (x$rows, `[[`, "metadata")
 		}
 
-	if (is.null (colnames (x$data))) {
-		warning ("\"data\" has no colnames")
-		if (!fix) return (FALSE) else colnames(x$data) <- 1:ncol(x$data)
+	if (!is.null (x$columns)) {
+		column.ids <- sapply (x$columns, `[[`, "id")
+		if (any (sapply (column.ids, is.null))) {
+			column.ids <- NULL
+		} else
+			x$columns <- lapply (x$columns, `[[`, "metadata")
 		}
 
-	if (!check.all && !fix) return (TRUE)
-
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#  here marks the separation between a "short" and "long" conformity check.
-#  long check: consistency of data description (data, shape, rows, columns)
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-#  check accuracy of shape
-#-----------------------------------------------------------------------------
-	if (! all.equal (dim (x$data), x$shape)) {
-		warning ("incorrect shape")
-		if (!fix) return (FALSE) else x$shape <- dim (x$data)
+	sparse <- NULL
+	if (isTRUE (x$matrix_type == "sparse")) {
+		sparse <- list (row.ids, column.ids)
+		if (is.null (sparse [[1]]))
+			sparse [[1]] <- 1:x$shape[1]
+		if (is.null (sparse [[2]]))
+			sparse [[2]] <- 1:x$shape[2]
+	} else {
+		if (!is.null (row.ids))
+			rownames (mm) <- row.ids
+		if (!is.null (column.ids))
+			colnames (mm) <- column.ids
+		if (is.null (rownames (mm)))
+			rownames (mm) <- 1:nrow(mm)
+		if (is.null (colnames (mm)))
+			colnames (mm) <- 1:ncol(mm)
 		}
-#-----------------------------------------------------------------------------
-#  if waslist, use "ids" from metadata for rownames and colnames, and remove
-#-----------------------------------------------------------------------------
-	if (waslist) {
-		rownames (x$data) <- sapply (x$rows, `[[`, "id")
-		colnames (x$data) <- sapply (x$columns, `[[`, "id")
-		x$rows <- lapply (x$rows, `[[`, "metadata")
-		x$columns <- lapply (x$columns, `[[`, "metadata")
-# need repetitive check here, or something
-		}
+
+# the following is a roundabout way of allowing "type" to be missing in the call
+
+	ll <- list (x=mm, sparse=sparse, quiet=quiet)
+	ll$type <- x$type
+	y <- do.call (biom, ll)
+
+	if (!is.null (x$rows)) 				y$rows 			<- x$rows
+	if (!is.null (x$columns)) 			y$columns 		<- x$columns
+
+	if (!is.null (x$id)) 				y$id 			<- x$id
+	if (!is.null (x$generated_by)) 		y$generated_by 	<- x$generated_by
+	if (!is.null (x$date)) 				y$date 			<- x$date
+	y$comment <- x$comment
 	
-	
-#--->   with(x, ...)    ... maybe throughout
-
-
-#-----------------------------------------------------------------------------
-#  check metadata, simply
-#-----------------------------------------------------------------------------
-	if(!is.list (x$rows) || 
-		!is.list (x$columns) ||
-		length (x$rows) != x$shape[1] || 
-		length (x$columns) != x$shape[2]) {
-		warning ("incorrect length of \"rows\" and/or \"columns\"")
-		if(!fix) return(FALSE) else stop("cannot fix")
-		}
-
-#-----------------------------------------------------------------------------
-#  standardize order of elements
-#-----------------------------------------------------------------------------
-	x <- x [biom_fields]
-
-#-----------------------------------------------------------------------------
-#  finally, restore class of x 
-#  and add "biom" class if missing
-#-----------------------------------------------------------------------------
-	class (x) <- cl
-	if (! (inherits (x, "biom"))) {
-		warning ("missing \"biom\" class attribute")
-		if (!fix) return (FALSE) else class(x) <- c("biom", class(x))
-		}
-
-#-----------------------------------------------------------------------------
-#  maybe a final sanity check? (...actually, the class definition)
-#-----------------------------------------------------------------------------
-# 	if (inherits (x, "biom")
-# 		&& inherits (x, "list")
-# 		&& identical (names (x), biom_fields)
-# 		&& identical (sapply (x, length), ...)
-# 		&& identical (sapply (x, class), ...)
-# 		&& !is.null (rownames (x$data))
-# 		&& !is.null (colnames (x$data))
-# 		&& length (x$rows) == x$shape [1]
-# 		&& length (x$columns) == x$shape [2])
-
-	return (if (fix) x else TRUE)
-
-	warning ("unidentified error") 
-	if (fix) stop ("cannot fix") else return (FALSE)
+	invisible (y)
 	}
 
 
@@ -569,7 +510,7 @@ is.biom <- function (x, fix=FALSE, check.all=fix, quiet=!check.all) {
 ##############################################################################
 
 #-----------------------------------------------------------------------------
-#  This routine build the package example data:
+#  This routine builds the package example data:
 #
 #  BIOM.utils/data/examples.rda:
 #		jtxt -- complete JSON text for BIOM object
@@ -589,7 +530,6 @@ buildBiomExamples <- function(outfile.Rda="examples.rda", outfile.txt="example-f
 	library (RJSONIO)
 	library (MGRASTer)
 	triple <- function (x) paste(x, x, x, sep="")
-
 
 	jtxt <- iconv(
 		readLines(
@@ -643,8 +583,7 @@ applyBiomMethods <- function (x) {
 	}
 
 #-----------------------------------------------------------------------------
-#  return a the example file of JSON text.
-#  biom.character() may be applied to it.
+#  return the example file of JSON text.  biom.character() may be applied to it.
 #-----------------------------------------------------------------------------
 
 exampleBiomFile <- function () {
@@ -659,6 +598,58 @@ exampleBiomFile <- function () {
 ##
 ##############################################################################
 ##############################################################################
+
+
+#-----------------------------------------------------------------------------  
+#  dense matrix to sparse
+#-----------------------------------------------------------------------------  
+
+dense2sparse <- function (x) {
+
+	ss <- which (x != 0, arr.ind=TRUE)
+	y <- t (mapply (
+		function (i, j, m) c (i, j, m [i,j]),
+		ss [,1],
+		ss [,2],
+		MoreArgs = list (x)))
+	y
+	}
+
+#-----------------------------------------------------------------------------  
+#  sparse matrix to dense.  allowed to specify dimensions for result.
+#-----------------------------------------------------------------------------  
+
+sparse2dense <- function (x, dim = c(max(x[,1]), max(x[,2]))) {
+
+	colnames (x) <- c("row", "col", "value")
+	df <- reshape (data.frame(x), v.names="value", idvar="row", timevar="col", direction="wide")
+	cols <- paste ("value", 1:dim[2], sep=".")
+	j <- cols %in% names(df)
+
+	y <- matrix (NA, dim[1], dim[2])
+	y [df$row, j] <- as.matrix (df [ , cols[j]])
+	y [is.na (y)] <- 0
+	y
+	}
+
+#-----------------------------------------------------------------------------  
+#  matrix to list of its rows (or columns).   a limited inverse of simplify2array().
+#-----------------------------------------------------------------------------  
+
+matrix2list <- function (x, margin = 1) {
+
+	f <- if (margin == 1) {
+		function (i, x) x[i,] 
+	} else
+		function (j, x) x[,j]
+	li <- as.list (
+		if (margin == 1) {
+			1:nrow(x)
+		} else 
+			1:ncol(x))
+
+	lapply (li, f, x)
+	}
 
 #-----------------------------------------------------------------------------
 #  we give warnings in a slightly idiosyncratic way
@@ -679,6 +670,8 @@ collapse <- function (x) paste (x, collapse=" ", sep="")
 #-----------------------------------------------------------------------------
 
 .onAttach <- function (libname, pkgname) { 
+	if ("package:biom" %in% search())
+		warning ("conflicting package \"biom\" is already loaded")
 	ss <- " build XXXBUILDXXX"
 	if (substr (ss, 8, 15) == "XXXBUILD") ss <- ""
 	packageStartupMessage(pkgname, " (", packageVersion(pkgname), ss, ")")

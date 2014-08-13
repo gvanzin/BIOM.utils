@@ -38,7 +38,9 @@ data in R, there is the class \code{biom}.
 These functions each transform objects of a basic R type into class \code{biom}.
 
 The \code{character} method is suitable for importing BIOM data properly speaking, that is, 
-text in JSON encoding that fits the BIOM specification.  The \code{matrix} method creates an 
+text in JSON encoding that fits the BIOM specification.  
+(Currently this package implements BIOM v. 1.0.)
+The \code{matrix} method creates an 
 object of the formal class \code{biom} from an existing \code{matrix} object.
 
 The \code{list} method accepts a \code{list} of any of the components allowed or required by BIOM, 
