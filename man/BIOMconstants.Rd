@@ -1,47 +1,67 @@
-\name{BIOMconstants}
-\alias{BIOMconstants}
+\name{BIOM Constants}
+\alias{biom_format}
+\alias{biom_format_url}
 \alias{biom_fields}
 \alias{biom_table_types}
 \alias{biom_matrix_types}
-\alias{biom_element_types}
+\alias{biom_matrix_element_types}
 
 \docType{data}
 
 \title{
-Constants used in representing BIOM data
+Constants related to BIOM format
 }
 
 \description{
-These objects enumerate the components of the BIOM representation as well as 
-the valid values (controlled vocabularies), where applicable, of required components.
+These constants enumerate components of BIOM format and
+their valid values (controlled vocabularies).
 }
 
 \usage{
+biom_format
+biom_format_url
 biom_fields
 biom_table_types
+biom_matrix_element_types
 biom_matrix_types
-biom_element_types
 }
 
 \details{
-In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
-for a data table expressed in JSON.  BIOM can be described as a format, standard,
-or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the class \code{biom}.
+BIOM (Biological Observation Matrix) is a simple prescription 
+for storing an annotated table of data.
+It may be described as a format, standard, or data structure.
 
-\code{biom_fields} lists the components of BIOM.  Each of the other three objects
-documented here lists the valid values of the eponymous BIOM component.
+The JSON (JavaScript Object Notation) standard 
+for expressing general data objects as text
+is employed to define BIOM.
+Therefore the native form of BIOM data is structured text,
+conforming to the JSON specification in general
+and the BIOM specification in particular.
+Familiarity with BIOM is assumed here.
+
+The S3 class \code{biom} and its methods facilitate analyses
+by expressing BIOM data as objects in the R environment.
+
+\code{biom_format} gives the latest BIOM version implemented by this package.  
+
+\code{biom_format_url} gives its associated URL.
+
+\code{biom_fields} lists the components specified by BIOM.
+
+Each other constant enumerates the allowed values of its corresponding BIOM component.
 }
 
 \references{
-\href{http://wwww.biom-format.org}{BIOM format}
+\href{http://wwww.biom-format.org}{BIOM format} \cr
+\href{http://wwww.json.org}{JSON} \cr
 }
 
 \examples{
+biom_format_url [biom_format]
 biom_fields
 biom_table_types
+biom_matrix_element_types
 biom_matrix_types
-biom_element_types
 }
 
 \keyword{datasets}

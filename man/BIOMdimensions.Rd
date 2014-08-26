@@ -1,50 +1,89 @@
-\name{BIOMdimensions}
-\alias{BIOMdimensions}
+\name{BIOM Dimensions}
 \alias{dim.biom}
 \alias{dimnames.biom}
-\alias{rows}
-\alias{columns}
+\alias{metadata}
+\alias{metadata.biom}
 
 \title{
 Row and column information of BIOM data
 }
 
 \description{
-Report \code{shape} (dimensions) of an object of class \code{biom}.  Report unique row and column \code{id}s.  
-Report \code{metadata} from \code{rows} and \code{columns} fields.
+Report \code{shape}, 
+unique row and column \code{id}s,
+and row and column \code{metadata} annotations 
+of an object of class \code{biom}.
 }
 
 \usage{
 \method{dim}{biom}(x)
 \method{dimnames}{biom}(x)
+
+metadata(x, ...)
+\method{metadata}{biom}(x, ...)
 }
 
 \arguments{
   \item{x}{an object (\code{biom})}
+  \item{...}{unused}
 }
 
 \details{
-In genomics, Biological Observation Matrix (BIOM) is a simple set of annotations
-for a data table expressed in JSON.  BIOM can be described as a format, standard,
-or even data structure.  Familiarity with BIOM is assumed, here.  For handling BIOM
-data in R, there is the class \code{biom}.
+BIOM (Biological Observation Matrix) is a simple prescription 
+for storing an annotated table of data.
+It may be described as a format, standard, or data structure.
 
-These functions apply to an R object that is already of class \code{biom}.
+The JSON (JavaScript Object Notation) standard 
+for expressing general data objects as text
+is employed to define BIOM.
+Therefore the native form of BIOM data is structured text,
+conforming to the JSON specification in general
+and the BIOM specification in particular.
+Familiarity with BIOM is assumed here.
 
-\code{dim()} returns the dimensions of the BIOM data table (its \code{shape}, in BIOM terminology).  
-\code{dimnames()} returns the unique row and column \code{id}s that are required by BIOM.
-\code{rows()} (or \code{columns()}) returns a list of the row (or column) \code{metadata} annotations provisioned by
-BIOM.
+The S3 class \code{biom} and its methods facilitate analyses
+by expressing BIOM data as objects in the R environment.
+The functions above apply to an R object that is already of class \code{biom}.
+
+\code{dim()} returns the dimensions of the BIOM data table (its \code{shape}).
+
+\code{dimnames()} returns the unique row and column \code{id}s required by BIOM.
+
+\code{metadata()} returns the row and column \code{metadata} annotations 
+provided for by BIOM.  They may be empty.
 }
 
 \value{
-As described.
+For \code{dim()}, a length-two \code{integer} vector, 
+with additional attribute \code{"nnz"}
+(number not zero) if the object is \code{"sparse"}, 
+equaling the number of values (rows) in the sparse representation.  
+See note below.
+
+For \code{dimnames()}, a \code{list} of two \code{character} vectors,
+named \code{"rows"} and \code{"columns"}.
+
+For \code{metadata()}, a \code{list} (invisibly) of two components,
+named \code{"rows"} and \code{"columns"}.  
+Each is a \code{list} equal in length to the data table's corresponding dimension.
+}
+
+\note{
+When \code{x} is \code{"sparse"}
+the dimensions of \code{as.matrix(x)} are not given by \code{dim(x)}.
+Rather, the latter has dimensions \code{c("nnz", 3)}.  See above.
+
+Also note that BIOM requires no exact structure for the metadata annotations
+of each row (column).  All that is guaranteed is a list 
+(itself possibly containing many components, and so on)
+with as many entries as the data table has rows (columns).
 }
 
 \seealso{
 \code{\link{biom}},
 \code{\link{dim}},
-\code{\link{dimnames}}
+\code{\link{dimnames}},
+\code{\link{as.matrix.biom}}
 }
 
 \author{
@@ -53,12 +92,35 @@ Daniel T. Braithwaite
 
 \references{
 \href{http://wwww.biom-format.org}{BIOM format} \cr
-\href{http://metagenomics.anl.gov}{MG-RAST metagenome annotation server} \cr
 \href{http://wwww.json.org}{JSON} \cr
 }
 
 
 \examples{
-#
-}
+##  one toy example, one real example:
+dd <- biom (dmat, quiet=TRUE)
+ff <- biom (li4, quiet=TRUE)
 
+dim (dd)
+dim (ff)
+dim (as.matrix (ff))
+dim (as.matrix (ff, expand=TRUE))
+
+dimnames (dd)
+dimnames (ff)
+
+##  automatic row and column ids:
+dimnames (biom (smat, sparse=TRUE, quiet=TRUE))
+
+##  no metadata:
+print (metadata (dd))
+
+##  simple metadata:
+ss <- biom (li3)
+print (as.matrix (ss))
+metadata (ss) $ columns
+
+##  complicated metadata, so look only at part:
+head (metadata(ff) $ rows)
+str (metadata(ff) $ columns [[1]])
+}

@@ -1,20 +1,22 @@
-Package BIOM.utils defines streamlined utilities in the R language
-for conveniently handling the Biological Observation Matrix (BIOM) format.
+Package BIOM.utils defines utilities in the R language
+for conveniently handling the BIOM (Biological Observation Matrix) format.
 
 See: http://biom-format.org<br>
-and: http://metagenomics.anl.gov
 
-Key components are the functions:<br>
+Objects of class "biom" may be constructed with:<br>
 biom.list()<br>
 biom.matrix()<br>
 biom.character()<br>
-as.matrix.biom()<br>
-as.character.biom()<br>
-is.biom()<br>
-dim.biom()<br>
-dimnames.biom()<br>
-rows()<br>
-columns()<br>
-print.biom()<br>
-summary.biom()<br>
-str.biom()
+
+And methods are provided for:<br>
+as.matrix()<br>
+as.character()<br>
+as.list()<br>
+dim()<br>
+dimnames()<br>
+metadata()<br>
+head()<br>
+tail()<br>
+print()<br>
+summary()<br>
+str()

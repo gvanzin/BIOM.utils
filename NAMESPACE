@@ -1,17 +1,19 @@
 #-----------------------------------------------------------------------------
-#  these routines are available to users:
+#  routines exported for users
 #-----------------------------------------------------------------------------
 
 export(
-	str.biom,				# basic class utilites
+	str.biom,				# examining an object
 	summary.biom,
 	print.biomsummary,
 	print.biom,
+	head.biom,
+	tail.biom,
 	dim.biom,
 	dimnames.biom,
-
+	metadata,
 	metadata.biom,
-	
+
 	as.matrix.biom,			# conversion from
 	as.list.biom,
 	as.character.biom,
@@ -21,28 +23,40 @@ export(
 	biom.matrix,
 	biom.list,
 
-	buildBiomExamples,		# package utilities
+	buildBiomExamples,		# utilities
 	applyBiomMethods,
-	exampleBiomFile)
+	exampleBiomFile,
+	
+	sparse2dense,			# matrix manipulation
+	dense2sparse,
+	matrix2list)
 
 #-----------------------------------------------------------------------------
-#  these S3 methods are defined:
+#  corresponding S3 method declarations
 #-----------------------------------------------------------------------------
 
-S3method (as.character, biom)
-S3method (as.matrix, biom)
-S3method (dim, biom)
-S3method (dimnames, biom)
-S3method (print, biom)
 S3method (str, biom)
 S3method (summary, biom)
-S3method (biom, list)
-S3method (biom, matrix)
-S3method (biom, character)
 S3method (print, biomsummary)
+S3method (print, biom)
+S3method (head, biom)
+S3method (tail, biom)
+S3method (dim, biom)
+S3method (dimnames, biom)
+
 S3method (metadata, biom)
+
+S3method (as.matrix, biom)
+S3method (as.list, biom)
+S3method (as.character, biom)
+
+S3method (biom, character)
+S3method (biom, matrix)
+S3method (biom, list)
 
 #-----------------------------------------------------------------------------
 #  to save loading time, we don't do this:
 #    importFrom (RJSONIO, fromJSON, toJSON)
 #-----------------------------------------------------------------------------
+
+importFrom (utils, str, head, tail)
