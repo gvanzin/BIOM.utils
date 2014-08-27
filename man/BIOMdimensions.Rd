@@ -17,6 +17,7 @@ of an object of class \code{biom}.
 
 \usage{
 \method{dim}{biom}(x)
+
 \method{dimnames}{biom}(x)
 
 metadata(x, ...)
@@ -55,8 +56,8 @@ provided for by BIOM.  They may be empty.
 
 \value{
 For \code{dim()}, a length-two \code{integer} vector, 
-with additional attribute \code{"nnz"}
-(number not zero) if the object is \code{"sparse"}, 
+with additional attribute \code{"nnz"} (number not zero)
+if the object is \code{"sparse"}, 
 equaling the number of values (rows) in the sparse representation.  
 See note below.
 
@@ -73,16 +74,15 @@ When \code{x} is \code{"sparse"}
 the dimensions of \code{as.matrix(x)} are not given by \code{dim(x)}.
 Rather, the latter has dimensions \code{c("nnz", 3)}.  See above.
 
-Also note that BIOM requires no exact structure for the metadata annotations
-of each row (column).  All that is guaranteed is a list 
-(itself possibly containing many components, and so on)
+Also note that BIOM requires no exact structure 
+for the metadata annotations of each row (column).
+All that is guaranteed is a list 
+(possibly of empty, atomic, or nested list elements)
 with as many entries as the data table has rows (columns).
 }
 
 \seealso{
 \code{\link{biom}},
-\code{\link{dim}},
-\code{\link{dimnames}},
 \code{\link{as.matrix.biom}}
 }
 

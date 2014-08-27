@@ -223,7 +223,7 @@ as.list (biom (jtxt))								# list of components
 biom (as.matrix (biom (jtxt)))						# note, sparseness is lost
 biom (as.matrix (biom (jtxt)), sparse=c(266,4))		# sparse retained
 biom (as.matrix (biom (jtxt), expand=TRUE))			# sparseness correctly lost
-#-->biom (as.list (biom (jtxt)))						# drops metadata
+biom (as.list (biom (jtxt)))						# drops metadata #####
 unlink (tt)
 
 as.matrix (biom (smat, sparse=c(266,4)))				# identity
@@ -236,7 +236,7 @@ as.matrix (biom (dmat))				# identity
 as.character (biom (dmat))			# JSON text
 as.list (biom (dmat))				# list of components
 biom (as.character (biom (dmat)))	# same result from 1st and 2nd biom()
-#-->biom (as.list (biom (dmat)))		# loses dimnames (via row.ids and column.ids)
+biom (as.list (biom (dmat)))		# loses dimnames (via row.ids and column.ids) #####
 
 as.list (biom (li1))			# list of components
 as.matrix (biom (li1))			# just the data
@@ -301,17 +301,5 @@ biom(li4, matrix_element_type="unicode")
 as.character (biom (li4, matrix_element_type="unicode"))
 as.character (biom (li4, matrix_element_type="unicode"), file=tt)
 biom (file=tt)
-
-#-----------------------------------------------------------------------------
-# stress-test one-column and one-row cases
-#-----------------------------------------------------------------------------
-
-ddr <- dmat [1, ,drop=F]
-ddc <- dmat [ ,1,drop=F]
-spc <- smat [10, ]
-spc <- smat [smat[,2]==1, ]
-
-# etc etc etc
-
 
 unlink (tt)

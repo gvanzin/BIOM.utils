@@ -56,6 +56,10 @@ Each other constant enumerates the allowed values of its corresponding BIOM comp
 \href{http://wwww.json.org}{JSON} \cr
 }
 
+\seealso{
+\code{\link{biom}}
+}
+
 \examples{
 biom_format_url [biom_format]
 biom_fields

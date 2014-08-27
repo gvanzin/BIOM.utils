@@ -19,10 +19,10 @@ Example objects for getting started, and related utilities.
 }
 
 \usage{
-buildBiomExamples(rdafile="examples.rda", jsonfile="example-json.txt")
-applyBiomMethods(x)
-exampleBiomFile()
 jtxt; smat; dmat; li1; li2; li3; li4
+exampleBiomFile()
+applyBiomMethods(x)
+buildBiomExamples(rdafile="examples.rda", jsonfile="example-json.txt")
 }
 
 \arguments{
@@ -89,7 +89,7 @@ str(li3)
 exampleBiomFile()
 
 xx <- biom (file=exampleBiomFile())
-yy <- biom (dmat)
+yy <- biom (dmat, quiet=TRUE)
 zz <- biom (li4)
 
 \dontrun{

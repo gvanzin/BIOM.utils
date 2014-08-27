@@ -16,9 +16,13 @@ Nicely print or summarize an object of class \code{biom}.  A summary omits print
 
 \usage{
 \method{str}{biom}(object, ...)
+
 \method{summary}{biom}(object, ...)
+
 \method{print}{biom}(x, ...)
+
 \method{head}{biom}(x, n=5, p=n, ...)
+
 \method{tail}{biom}(x, n=5, p=n, ...)
 }
 
@@ -48,8 +52,8 @@ by expressing BIOM data as objects in the R environment.
 The functions above apply to an R object that is already of class \code{biom}.
 
 \code{print()} and \code{summary()} show the contents of the object, 
-with the difference that the latter omits printing the BIOM data table.  The
-former always prints it in expanded (non-sparse) form.
+with the difference that the latter omits printing the BIOM data table.
+The former always prints it in expanded (non-sparse) form.
 
 \code{str()} shows the raw R structure of its argument
 using the default \code{str()} with pleasing options.
@@ -69,16 +73,14 @@ When the object is \code{"sparse"} its data table is stored as
 a three-column sparse representation matrix.
 (See reference for details, and note that indices begin at zero.)
 Such data is displayed by \code{print()} in an expanded (non-sparse) form,
-but \code{head()} and \code{tail()} return
+but \code{head()} and \code{tail()} return 
 parts of the sparse representation unexpanded.
 }
 
 \seealso{
 \code{\link{biom}},
-\code{\link{str}},
-\code{\link{summary}},
-\code{\link{head}},
-\code{\link{tail}}
+\code{\link{dim.biom}}
+\code{\link{as.matrix.biom}}
 }
 
 \author{

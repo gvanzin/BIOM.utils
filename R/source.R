@@ -601,7 +601,7 @@ biom.list <- function (x, ..., quiet=FALSE) {
 #
 #-----------------------------------------------------------------------------
 
-buildBiomExamples <- function(outfile.rda="examples.rda", outfile.txt="example-file.txt") {
+buildBiomExamples <- function (rdafile="examples.rda", jsonfile="example-json.txt") {
 	library (RJSONIO)
 	library (MGRASTer)
 	triple <- function (x) paste(x, x, x, sep="")
@@ -613,8 +613,9 @@ buildBiomExamples <- function(outfile.rda="examples.rda", outfile.txt="example-f
 			warn=FALSE),
 		to="ASCII",
 		sub="?")
-	writeLines(jtxt, outfile.txt)
-	message ("Built ", outfile.txt, " in: ", getwd(), ".  For package build, move to BIOM.utils/inst/extdata")
+	writeLines(jtxt, jsonfile)
+	message ("Built ", jsonfile, " in: ", getwd(), 
+		".  For package build, move to BIOM.utils/inst/extdata")
 
 	dmat <- matrix(101:200, nrow=20, dimnames=list(letters[1:20], LETTERS[1:5]))
 	li1 <- list(
@@ -636,8 +637,9 @@ buildBiomExamples <- function(outfile.rda="examples.rda", outfile.txt="example-f
 	li4 [c("matrix_element_value", "url")] <- NULL
 	smat <- t(simplify2array(li4$data))
 
-	save(smat, dmat, li1, li2, li3, li4, jtxt, file=outfile.rda)
-	message ("Built ", outfile.rda, " in: ", getwd(), ".  For package build, move to BIOM.utils/data")
+	save(smat, dmat, li1, li2, li3, li4, jtxt, file=rdafile)
+	message ("Built ", rdafile, " in: ", getwd(), 
+		".  For package build, move to BIOM.utils/data")
 	}
 
 #-----------------------------------------------------------------------------
@@ -677,7 +679,7 @@ applyBiomMethods <- function (x) {
 #-----------------------------------------------------------------------------
 
 exampleBiomFile <- function () {
-	file.path (path.package ("BIOM.utils"), "extdata", "example-file.txt")
+	file.path (path.package ("BIOM.utils"), "extdata", "example-json.txt")
 	}
 
 

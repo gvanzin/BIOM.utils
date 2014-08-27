@@ -15,8 +15,11 @@ necessary.
 
 \usage{
 biom(x, ...)
+
 \method{biom}{character}(x, ..., file=NULL, quiet=FALSE)
+
 \method{biom}{matrix}(x, type=biom_table_types, sparse=NULL, ..., quiet=FALSE)
+
 \method{biom}{list}(x, ..., quiet=FALSE)
 }
 
@@ -46,17 +49,18 @@ The S3 class \code{biom} and its methods facilitate analyses
 by expressing BIOM data as objects in the R environment.
 Each function above transforms an object of a basic R type into class \code{biom}.
 
-The \code{character} method is suitable for importing BIOM data properly speaking, that is, 
-JSON text conforming to the BIOM specification.  The data is read from \code{file}, when provided.
-Arguments from \code{\dots} are passed to \code{fromJSON()} in order to allow for 
-different character encodings, 
+The \code{character} method is suitable for importing BIOM data properly speaking, 
+that is, JSON text conforming to the BIOM specification.  
+The data is read from \code{file}, when provided.
+Arguments from \code{\dots} are passed to \code{fromJSON()} 
+in order to allow for different character encodings, 
 
 To make a \code{biom} object from a TSV or CSV file, see examples below.
-Of course, it is possible to bring \code{biom} objects in and out of the session
-with \code{save()} and \code{load()}.
+Of course, it is possible to bring \code{biom} objects 
+in and out of the session with \code{save()} and \code{load()}.
 
-The \code{matrix} method accepts an ordinary (\code{"dense"}) matrix or
-a three-column sparse matrix representation 
+The \code{matrix} method accepts an ordinary (\code{"dense"}) matrix
+or a three-column sparse matrix representation 
 (using indices starting at zero, per BIOM).
 If the latter, \code{sparse} should also be provided, 
 as a length-two \code{integer} giving the data table's \code{shape},
@@ -69,10 +73,11 @@ inventing something reasonable for missing components, with certain qualificatio
 
 \code{shape} is required if \code{matrix_type} is specified as \code{"sparse"};
 \code{data} may be given as a \code{list} of rows, 
-a \code{list} of triples sparsely representing a matrix, 
-or a \code{matrix}; 
-in the last case, its \code{dimnames()} may be used to provide row and column \code{id}s;
-but \code{ids} from \code{rows} and \code{columns}, if provided, supercede \code{dimnames()}.
+a \code{list} of triples sparsely representing a matrix, or a \code{matrix}; 
+in the last case, its \code{dimnames()} may be used
+to provide row and column \code{id}s;
+but \code{ids} from \code{rows} and \code{columns},
+if provided, supercede \code{dimnames()}.
 }
 
 \value{
@@ -135,7 +140,7 @@ biom (smat, sparse=list (paste ("row", 1:266), paste ("column", 1:4)), quiet=TRU
 ##  enforce matrix_element_type to be "int":
 mm <- dmat
 storage.mode (mm) <- "integer"
-biom (mm)
+biom (mm, quiet=TRUE)
 
 unlink (tt)
 }

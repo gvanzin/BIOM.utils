@@ -53,12 +53,13 @@ All \code{names()} and \code{dimnames()} are removed.
 }
 
 \note{
-For purposes of these functions, row and column indices start at 1, whereas
-BIOM counts from 0, so adjust if necessary.
+Like R these functions begin indices at 1, whereas BIOM counts from 0, 
+so adjust if necessary.
 }
 
 \seealso{
-\code{\link{biom}}
+\code{\link{biom}}, 
+\code{\link{as.matrix.biom}}
 }
 
 \author{
