@@ -764,7 +764,7 @@ collapse <- function (x) paste (x, collapse=" ", sep="")
 .onAttach <- function (libname, pkgname) { 
 	if ("package:biom" %in% search())
 		warning ("package \"biom\" is not compatible")
-	ss <- " build XXXBUILDXXX"
-	if (substr (ss, 8, 15) == "XXXBUILD") ss <- ""
+	ss <- " XXXBUILDXXX"
+	if (substr (ss, 2, 9) == "XXXBUILD") ss <- ""
 	packageStartupMessage(pkgname, " (", packageVersion(pkgname), ss, ")")
 	}
