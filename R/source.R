@@ -338,7 +338,6 @@ as.list.biom <- function (x, ...) {
 #-----------------------------------------------------------------------------
 
 as.character.biom <- function (x, ..., file=NULL) {
-	library(RJSONIO)
 
 	x <- within (as.list (x), {
 		data <- matrix2list (data)
@@ -357,12 +356,12 @@ as.character.biom <- function (x, ..., file=NULL) {
 	x$row.ids <- x$column.ids <- NULL
 
 	if (is.null (file)) {
-		invisible (toJSON (x, ...))
+		invisible (RJSONIO::toJSON (x, ...))
 	} else {
 		if (x$matrix_element_type == "unicode") {
-			writeLines (enc2utf8 (toJSON (x, pretty=TRUE, ...)), file, useBytes=T)
+			writeLines (enc2utf8 (RJSONIO::toJSON (x, pretty=TRUE, ...)), file, useBytes=T)
 		} else
-			writeLines (toJSON (x, pretty=TRUE, ...), file)
+			writeLines (RJSONIO::toJSON (x, pretty=TRUE, ...), file)
 		file
 		}
 	}
@@ -384,14 +383,12 @@ biom <- function (x, ...) UseMethod("biom")
 #-----------------------------------------------------------------------------
 
 biom.character <- function (x, ..., file=NULL, quiet=FALSE) {
-	library (RJSONIO)
 
 #  there is some work to be done here, to use RJSONIO more intelligently
-
 	if (is.null (file)) {
-		biom (fromJSON (x, asText=TRUE, simplify=TRUE, ...), quiet=quiet)
+		biom (RJSONIO::fromJSON (x, asText=TRUE, simplify=TRUE, ...), quiet=quiet)
 	} else
-		biom (fromJSON (file, simplify=TRUE, ...), quiet=quiet)
+		biom (RJSONIO::fromJSON (file, simplify=TRUE, ...), quiet=quiet)
 	}
 
 #-----------------------------------------------------------------------------
@@ -602,13 +599,13 @@ biom.list <- function (x, ..., quiet=FALSE) {
 #-----------------------------------------------------------------------------
 
 buildBiomExamples <- function (rdafile="examples.rda", jsonfile="example-json.txt") {
-	library (RJSONIO)
-	library (MGRASTer)
+	require("MGRASTer")
+
 	triple <- function (x) paste(x, x, x, sep="")
 
 	jtxt <- iconv(
 		readLines(
-			call.MGRAST (issue=FALSE, 'ma', 'or', id=c(4447943.3, 4447192.3, 4447102.3, 4447103.3), 
+			MGRASTer::call.MGRAST (issue=FALSE, 'ma', 'or', id=c(4447943.3, 4447192.3, 4447102.3, 4447103.3), 
 				gro='family', so='Ref', resu='ab', ev=15, quiet=TRUE),
 			warn=FALSE),
 		to="ASCII",
@@ -633,13 +630,49 @@ buildBiomExamples <- function (rdafile="examples.rda", jsonfile="example-json.tx
 		type="OTU table",
 		rows=li2$rows,
 		columns=li2$columns)
-	li4 <- fromJSON (jtxt)
+	li4 <- RJSONIO::fromJSON (jtxt)
 	li4 [c("matrix_element_value", "url")] <- NULL
 	smat <- t(simplify2array(li4$data))
 
 	save(smat, dmat, li1, li2, li3, li4, jtxt, file=rdafile)
 	message ("Built ", rdafile, " in: ", getwd(), 
 		".  For package build, move to BIOM.utils/data")
+
+	biom_format <- "Biological Observation Matrix 1.0"
+	biom_format_url <- "http://biom-format.org/documentation/format_versions/biom-1.0.html"
+	names(biom_format_url) <- biom_format
+	biom_fields <- c(
+		"rows",
+		"columns",
+		"data",
+		"shape",
+		"matrix_type",
+		"matrix_element_type",
+		"type",
+		"format",
+		"format_url",
+		"date",
+		"id",
+		"generated_by")
+	biom_table_types <- c(
+		"OTU table",
+		"Pathway table",
+		"Function table",
+		"Ortholog table",
+		"Gene table",
+		"Metabolite table",
+		"Taxon table")
+	biom_matrix_element_types <- c(
+		"int",
+		"float",
+		"unicode")
+	biom_matrix_types <- c(
+		"dense",
+		"sparse")
+	save(biom_format, biom_format_url, biom_fields, biom_table_types, 
+		biom_matrix_element_types, biom_matrix_types, file="sysdata.rda")
+	message ("Built sysdata.rda in: ", getwd(), 
+		".  For package build, move to BIOM.utils/R")
 	}
 
 #-----------------------------------------------------------------------------

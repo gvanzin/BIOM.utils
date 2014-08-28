@@ -29,7 +29,14 @@ export(
 	
 	sparse2dense,			# matrix manipulation
 	dense2sparse,
-	matrix2list)
+	matrix2list,
+
+	biom_format,
+	biom_format_url,
+	biom_fields,
+	biom_table_types,
+	biom_matrix_element_types,
+	biom_matrix_types)
 
 #-----------------------------------------------------------------------------
 #  corresponding S3 method declarations
