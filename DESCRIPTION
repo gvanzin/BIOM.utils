@@ -1,8 +1,10 @@
 Package: BIOM.utils
 Type: Package
 Title: Utilities for the BIOM (Biological Observation Matrix) Format
-Authors@R: person (c("Daniel", "T."), "Braithwaite", role=c("aut", "cre"), 
- email="contact.dtb@gmail.com")
+Authors@R: c(
+ person (c("Daniel", "T."), "Braithwaite", 
+ role = c("aut", "cre"), email = "contact.dtb@gmail.com"),
+ person (c("University", "of"), "Chicago", role = "cph"))
 Version: 0.9
 Depends: R (>= 3.0), utils
 Imports: 

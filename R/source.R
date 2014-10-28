@@ -190,10 +190,13 @@ dim.biom <- function (x) {
 #  dimnames() method returns BIOM "ids" in a list of two components,
 #  named "rows" and "columns".
 #
-#  those names need to be added to dimnames(), in the dense case.
-#  otherwise, they are already present in sparse$dimnames.
+#  those names need to be added to dimnames(), in the dense case
+#  because "data" is stored as an unadulterated matrix, by design:
+#  names() of dimnames() equal to c("rows","columns") is considered a property of "biom".
+#  in the sparse case, names(dimnames()) already exist  (in sparse$dimnames).
 #
-#  because rownames() and colnames() are not generic, they are not implemented here.
+#  the dimnames() method implies functionality for rownames() and colnames()
+#  because they are defined using it.
 #-----------------------------------------------------------------------------
 
 dimnames.biom <- function (x) {
