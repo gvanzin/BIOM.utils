@@ -21,3 +21,8 @@ And methods are provided for:
 	print()
 	summary()
 	str()
+
+CRAN (Comprehensive R Archive Network) hosts 
+the [package](http://cran.r-project.org/web/packages/BIOM.utils/index.html)
+including 
+its [manual](http://cran.r-project.org/web/packages/BIOM.utils/BIOM.utils.pdf).
